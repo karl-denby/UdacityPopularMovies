@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Popular Movies</string>
+    <string name="grid_no_connection">No Connection</string>
 </resources>
