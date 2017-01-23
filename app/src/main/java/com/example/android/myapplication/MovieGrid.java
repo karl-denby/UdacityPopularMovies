@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
@@ -13,16 +15,25 @@ import static android.provider.AlarmClock.EXTRA_MESSAGE;
 public class MovieGrid extends AppCompatActivity {
 
     Toast mToast = null;
+    GridView mMovieGrid;
+    ProgressBar mProgressBar;
+    TextView mErrorText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_grid);
 
-        GridView gridview = (GridView) findViewById(R.id.gridview);
-        gridview.setAdapter(new ImageAdapter(this));
+        mProgressBar = (ProgressBar) findViewById(R.id.pb_loading);
+        mMovieGrid = (GridView) findViewById(R.id.gv_movie_posters);
 
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        // Get rid of the grid interface and show the spinner
+        mProgressBar.setVisibility(View.VISIBLE);
+        mMovieGrid.setVisibility(View.INVISIBLE);
+
+        // Load the data and setup item click handler
+        mMovieGrid.setAdapter(new ImageAdapter(this));
+        mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
                 if (mToast!=null) {
@@ -37,6 +48,10 @@ public class MovieGrid extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        // Get rid of the spinner and show the grid interface
+        mProgressBar.setVisibility(View.INVISIBLE);
+        mMovieGrid.setVisibility(View.VISIBLE);
     }
 
 }
