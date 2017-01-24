@@ -6,13 +6,14 @@
     tools:context="com.example.android.myapplication.MovieGrid">
 
     <ProgressBar
-        android:id="@+id/pb_loading"
+        android:id="@+id/pb_grid_loading"
         android:layout_width="148dp"
         android:layout_height="148dp"
         android:layout_gravity="center"
         android:visibility="visible"/>
 
     <TextView
+        android:id="@+id/tv_grid_error"
         android:textAlignment="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +23,7 @@
         android:visibility="invisible"/>
 
     <GridView
-        android:id="@+id/gv_movie_posters"
+        android:id="@+id/gv_grid_posters"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:numColumns="2"
