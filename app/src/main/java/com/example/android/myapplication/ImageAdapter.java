@@ -9,16 +9,22 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
+
 
 public class ImageAdapter extends BaseAdapter {
     private Context mContext;
+    private String[] mMovieId;
+    private String[] mPosterUrl;
 
-    public ImageAdapter(Context c) {
+    public ImageAdapter(Context c, String[] movieId, String[] posterUrl) {
         mContext = c;
+        mMovieId = movieId;
+        mPosterUrl = posterUrl;
     }
 
     public int getCount() {
-        return mThumbIds.length;
+        return mMovieId.length;
     }
 
     public Object getItem(int position) {
@@ -37,18 +43,19 @@ public class ImageAdapter extends BaseAdapter {
             imageView = new ImageView(mContext);
             imageView.setLayoutParams(new GridView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    600));
+                    800));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setPadding(2, 2, 2, 2);
-
+            imageView.setTag(mMovieId[position]);
         } else {
             imageView = (ImageView) convertView;
         }
 
-        //imageView.setImageResource(mThumbIds[position]);
+        String base_url = "http://image.tmdb.org/t/p/w185/";
+
         Picasso
                 .with(mContext)
-                .load("http://i.imgur.com/DvpvklR.png")
+                .load(base_url + mPosterUrl[position])
                 .fit()
                 .centerCrop()
                 .into(imageView);
@@ -56,10 +63,4 @@ public class ImageAdapter extends BaseAdapter {
         return imageView;
     }
 
-    // references to our images
-    private Integer[] mThumbIds = {
-            R.mipmap.ic_launcher, R.mipmap.ic_launcher,
-            R.mipmap.ic_launcher, R.mipmap.ic_launcher,
-            R.mipmap.ic_launcher, R.mipmap.ic_launcher,
-    };
 }

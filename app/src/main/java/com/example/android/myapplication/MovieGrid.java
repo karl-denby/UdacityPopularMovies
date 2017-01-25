@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
@@ -53,11 +54,26 @@ public class MovieGrid extends AppCompatActivity {
         mMovieGrid = (GridView) findViewById(R.id.gv_grid_posters);
         mErrorText = (TextView) findViewById(R.id.tv_grid_error);
 
+        HashMap<String, String> mMovieData = new HashMap<String, String>();
+        mMovieData.put("328111", "/WLQN5aiQG8wc9SeKwixW7pAR8K.jpg");
+        mMovieData.put("297761", "/z4x0Bp48ar3Mda8KiPD1vwSY3D8.jpg");
+
+        String[] mMovieId = {
+                "328111",
+                "297761"
+        };
+
+        String[] mPosterUrl = {
+                "WLQN5aiQG8wc9SeKwixW7pAR8K.jpg",
+                "z4x0Bp48ar3Mda8KiPD1vwSY3D8.jpg"
+        };
+
         // Check for a valid network connection
-        // show grid
+        // run query
         // or error
         if (networkOnline()) {
-            mMovieGrid.setAdapter(new ImageAdapter(this));
+            queryAPI();
+            mMovieGrid.setAdapter(new ImageAdapter(this, mMovieId, mPosterUrl));
             mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                     Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
@@ -65,10 +81,6 @@ public class MovieGrid extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
-
-            queryAPI();
-            showGrid();
-
         } else {
             showNetworkError();
         }
@@ -117,11 +129,11 @@ public class MovieGrid extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            mResponseFromJSON = s;
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            mResponseFromJSON = response;
+            showGrid();
         }
     }
-
 
 }

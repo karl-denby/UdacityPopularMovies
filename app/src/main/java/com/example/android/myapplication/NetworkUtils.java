@@ -16,6 +16,7 @@
 package com.example.android.myapplication;
 
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +43,7 @@ public class NetworkUtils {
      * then place it in here
      */
     private final static String PARAM_KEY = "api_key";
-    private final static String myKey = "ENTER_YOUR_API_KEY_HERE_IF_YOU_WANT_DATA_FROM_THE_INTERNET";
+    private final static String myKey = "YOUR_KEY_GOES_HERE";
 
     /**
      * Builds the URL used to query out website.
@@ -62,7 +63,6 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
         return url;
     }
 
