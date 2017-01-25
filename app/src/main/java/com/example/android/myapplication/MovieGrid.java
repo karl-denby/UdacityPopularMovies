@@ -4,13 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.net.URL;
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
@@ -19,6 +24,7 @@ public class MovieGrid extends AppCompatActivity {
     GridView mMovieGrid;
     ProgressBar mProgressBar;
     TextView mErrorText;
+    String mResponseFromJSON;
 
     @Override
     protected void onStop() {
@@ -60,6 +66,7 @@ public class MovieGrid extends AppCompatActivity {
                 }
             });
 
+            queryAPI();
             showGrid();
 
         } else {
@@ -89,4 +96,32 @@ public class MovieGrid extends AppCompatActivity {
         mErrorText.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.VISIBLE);
     }
+
+    private void queryAPI() {
+        URL url = NetworkUtils.buildUrl("popularity.desc");
+        QueryAsyncTask results = new QueryAsyncTask();
+        results.execute(url);
+    }
+
+    private class QueryAsyncTask extends AsyncTask<URL, Void, String> {
+        @Override
+        protected String doInBackground(URL... url) {
+
+            String response = "";
+            try {
+                response =  NetworkUtils.getResponseFromHttpUrl(url[0]);
+            } catch (IOException e) {
+                Log.v("queryAPI", e.toString());
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            mResponseFromJSON = s;
+        }
+    }
+
+
 }
