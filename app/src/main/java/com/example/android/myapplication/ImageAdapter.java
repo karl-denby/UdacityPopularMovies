@@ -55,8 +55,6 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         String base_url = "http://image.tmdb.org/t/p/w185";
-        Log.v("Picture URL", base_url + mPosterUrl[position]);
-
         Picasso
                 .with(mContext)
                 .load(base_url + mPosterUrl[position])

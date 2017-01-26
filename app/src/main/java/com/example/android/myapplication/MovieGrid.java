@@ -158,7 +158,7 @@ public class MovieGrid extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String response) {
+        protected void onPostExecute(final String response) {
             super.onPostExecute(response);
             mResponseFromJSON = response;
             createMovieList(mResponseFromJSON);
@@ -168,8 +168,10 @@ public class MovieGrid extends AppCompatActivity {
             mMovieGrid.setAdapter(adapter);
             mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                    showProgressIndicator();
                     Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
-                    intent.putExtra(EXTRA_MESSAGE, String.valueOf(position));
+                    intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
+                    intent.putExtra("DATA", mResponseFromJSON);
                     startActivity(intent);
                 }
             });

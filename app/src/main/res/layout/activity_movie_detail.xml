@@ -1,52 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tv_detail_movie_title"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingTop="16dp"
-        android:paddingRight="16dp"
-        android:text="LaLa Land"
-        android:textSize="28sp"/>
+        android:layout_height="wrap_content" >
 
-    <ImageView
-        android:id="@+id/iv_detail_movie_poster"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:src="@mipmap/ic_launcher"/>
+        <TextView
+            android:id="@+id/tv_detail_movie_title"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp"
+            android:textSize="28sp" />
 
-    <TextView
-        android:id="@+id/tv_detail_movie_overview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingTop="16dp"
-        android:paddingRight="16dp"
-        android:text="Something about singing/dancing"/>
+        <ImageView
+            android:id="@+id/iv_detail_movie_poster"
+            android:layout_gravity="center"
+            android:layout_width="150dp"
+            android:layout_height="300dp"
+            android:paddingTop="16dp" />
 
-    <RatingBar
-        android:id="@+id/rb_detail_movie_vote_average"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:paddingTop="16dp"
-        android:rating="0"
-        android:numStars="5" />
+        <TextView
+            android:id="@+id/tv_detail_movie_overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp" />
 
-    <TextView
-        android:id="@+id/tv_detail_movie_release_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingTop="16dp"
-        android:paddingRight="16dp"
-        android:text="Late 2016"/>
+        <RatingBar
+            android:id="@+id/rb_detail_movie_vote_average"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="16dp"
+            android:rating="2.5"
+            android:numStars="5"
+            android:isIndicator="true"/>
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tv_detail_movie_release_date"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp" />
+    </LinearLayout>
+</ScrollView>
