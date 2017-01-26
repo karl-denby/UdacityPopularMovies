@@ -14,6 +14,10 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -26,6 +30,8 @@ public class MovieGrid extends AppCompatActivity {
     ProgressBar mProgressBar;
     TextView mErrorText;
     String mResponseFromJSON;
+    String[] mMovieId = new String[10];
+    String[] mPosterUrl = new String[10];
 
     @Override
     protected void onStop() {
@@ -54,37 +60,29 @@ public class MovieGrid extends AppCompatActivity {
         mMovieGrid = (GridView) findViewById(R.id.gv_grid_posters);
         mErrorText = (TextView) findViewById(R.id.tv_grid_error);
 
-        HashMap<String, String> mMovieData = new HashMap<String, String>();
-        mMovieData.put("328111", "/WLQN5aiQG8wc9SeKwixW7pAR8K.jpg");
-        mMovieData.put("297761", "/z4x0Bp48ar3Mda8KiPD1vwSY3D8.jpg");
-
-        String[] mMovieId = {
-                "328111",
-                "297761"
-        };
-
-        String[] mPosterUrl = {
-                "WLQN5aiQG8wc9SeKwixW7pAR8K.jpg",
-                "z4x0Bp48ar3Mda8KiPD1vwSY3D8.jpg"
-        };
-
         // Check for a valid network connection
         // run query
         // or error
         if (networkOnline()) {
             queryAPI();
-            mMovieGrid.setAdapter(new ImageAdapter(this, mMovieId, mPosterUrl));
-            mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
-                    intent.putExtra(EXTRA_MESSAGE, String.valueOf(position));
-                    startActivity(intent);
-                }
-            });
         } else {
             showNetworkError();
         }
+    }
 
+    private void createMovieList(String data) {
+        try {
+            JSONObject reader = new JSONObject(data);
+            JSONArray all_movies = reader.getJSONArray("results");
+            int i;
+            for (i = 0; i < 10; i++) {
+                JSONObject movie = all_movies.getJSONObject(i);
+                mMovieId[i] = movie.getString("id");
+                mPosterUrl[i] = movie.getString("poster_path");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean networkOnline() {
@@ -132,6 +130,17 @@ public class MovieGrid extends AppCompatActivity {
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
             mResponseFromJSON = response;
+            createMovieList(mResponseFromJSON);
+
+            ImageAdapter adapter = new ImageAdapter(MovieGrid.this, mMovieId, mPosterUrl);
+            mMovieGrid.setAdapter(adapter);
+            mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                    Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
+                    intent.putExtra(EXTRA_MESSAGE, String.valueOf(position));
+                    startActivity(intent);
+                }
+            });
             showGrid();
         }
     }

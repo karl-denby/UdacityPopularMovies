@@ -1,6 +1,7 @@
 package com.example.android.myapplication;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -24,6 +25,7 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     public int getCount() {
+        Log.v("items", mMovieId.length + "");
         return mMovieId.length;
     }
 
@@ -47,11 +49,13 @@ public class ImageAdapter extends BaseAdapter {
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setPadding(2, 2, 2, 2);
             imageView.setTag(mMovieId[position]);
+            Log.v("Movie ID", "" + mMovieId[position]);
         } else {
             imageView = (ImageView) convertView;
         }
 
-        String base_url = "http://image.tmdb.org/t/p/w185/";
+        String base_url = "http://image.tmdb.org/t/p/w185";
+        Log.v("Picture URL", base_url + mPosterUrl[position]);
 
         Picasso
                 .with(mContext)
