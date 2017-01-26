@@ -16,6 +16,8 @@
 package com.example.android.myapplication;
 
 import android.net.Uri;
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -61,6 +63,7 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+        Log.v("Query URL", url.toString());
         return url;
     }
 

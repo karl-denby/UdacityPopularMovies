@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -32,6 +34,31 @@ public class MovieGrid extends AppCompatActivity {
     String mResponseFromJSON;
     String[] mMovieId = new String[10];
     String[] mPosterUrl = new String[10];
+    String mSortType;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sort, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        showProgressIndicator();
+        int clickedItem = item.getItemId();
+
+        if (clickedItem == R.id.popular) {
+            mSortType = "popularity.desc"; queryAPI(mSortType);
+        }
+
+        if (clickedItem == R.id.rated) {
+            mSortType = "vote_average.desc"; queryAPI(mSortType);
+        }
+
+        queryAPI(mSortType);
+        Log.v("Query Param", clickedItem + " " + mSortType);
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onStop() {
@@ -63,8 +90,12 @@ public class MovieGrid extends AppCompatActivity {
         // Check for a valid network connection
         // run query
         // or error
+        if (mSortType == null) {
+            mSortType = "popularity.desc";
+        }
+
         if (networkOnline()) {
-            queryAPI();
+            queryAPI(mSortType);
         } else {
             showNetworkError();
         }
@@ -107,8 +138,8 @@ public class MovieGrid extends AppCompatActivity {
         mProgressBar.setVisibility(View.VISIBLE);
     }
 
-    private void queryAPI() {
-        URL url = NetworkUtils.buildUrl("popularity.desc");
+    private void queryAPI(String sortOption) {
+        URL url = NetworkUtils.buildUrl(sortOption);
         QueryAsyncTask results = new QueryAsyncTask();
         results.execute(url);
     }
@@ -133,6 +164,7 @@ public class MovieGrid extends AppCompatActivity {
             createMovieList(mResponseFromJSON);
 
             ImageAdapter adapter = new ImageAdapter(MovieGrid.this, mMovieId, mPosterUrl);
+            mMovieGrid.setAdapter(null);
             mMovieGrid.setAdapter(adapter);
             mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
