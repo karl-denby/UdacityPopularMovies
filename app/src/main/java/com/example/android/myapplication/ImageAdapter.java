@@ -1,7 +1,6 @@
 package com.example.android.myapplication;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -9,8 +8,6 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
-
-import java.util.HashMap;
 
 
 public class ImageAdapter extends BaseAdapter {
@@ -25,7 +22,6 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     public int getCount() {
-        Log.v("items", mMovieId.length + "");
         return mMovieId.length;
     }
 
@@ -45,23 +41,22 @@ public class ImageAdapter extends BaseAdapter {
             imageView = new ImageView(mContext);
             imageView.setLayoutParams(new GridView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    800));
+                    274*3
+            ));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setPadding(2, 2, 2, 2);
             imageView.setTag(mMovieId[position]);
-            Log.v("Movie ID", "" + mMovieId[position]);
         } else {
             imageView = (ImageView) convertView;
         }
 
         String base_url = "http://image.tmdb.org/t/p/w185";
-        Picasso
-                .with(mContext)
-                .load(base_url + mPosterUrl[position])
-                .fit()
-                .centerCrop()
-                .into(imageView);
-
+        if (mPosterUrl[position] != null) {
+            Picasso
+                    .with(mContext)
+                    .load(base_url + mPosterUrl[position])
+                    .into(imageView);
+        }
         return imageView;
     }
 

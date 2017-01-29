@@ -63,7 +63,6 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        Log.v("Query URL", url.toString());
         return url;
     }
 

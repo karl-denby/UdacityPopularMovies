@@ -23,7 +23,7 @@
         <ImageView
             android:id="@+id/iv_detail_movie_poster"
             android:layout_gravity="center"
-            android:layout_width="150dp"
+            android:layout_width="200dp"
             android:layout_height="300dp"
             android:paddingTop="16dp" />
 
