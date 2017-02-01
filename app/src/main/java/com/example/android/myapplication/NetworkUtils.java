@@ -25,6 +25,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
+
+// Stage 2 to do list
+// Todo: (0) ..Colors/Style
+// Todo: (1) ..screen rotation is not an issue
+// Todo: (2) ..mark a movie as favourite (local movies collection)
+// Todo: (3) ..when favorites selected shows favourites collection instead of query results
+// Todo: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
+// Todo: (5) ..read reviews of a selected movie /movie/{id}/reviews
+// Todo: (6) ..titles and ids stored in a ContentProvider backed by SQLdatabase, updated when favourite is toggled
+// Todo: (E) .. store the other fields in the content provider so you can see them even when offline
+// Todo: (E) .. user can share the 1st trailers url
+
 /**
  * These utilities will be used to communicate with the network.
  */

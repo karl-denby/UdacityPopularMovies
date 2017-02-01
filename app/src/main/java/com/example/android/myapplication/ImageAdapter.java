@@ -40,11 +40,12 @@ public class ImageAdapter extends BaseAdapter {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
             imageView.setLayoutParams(new GridView.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    274*3
-            ));
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(2, 2, 2, 2);
+            imageView.setPadding(0, 0, 0, 0);
             imageView.setTag(mMovieId[position]);
         } else {
             imageView = (ImageView) convertView;
@@ -55,6 +56,8 @@ public class ImageAdapter extends BaseAdapter {
             Picasso
                     .with(mContext)
                     .load(base_url + mPosterUrl[position])
+                    .noFade()
+                    .resize(540, 850)
                     .into(imageView);
         }
         return imageView;

@@ -72,7 +72,7 @@ public class MovieGrid extends AppCompatActivity {
         super.onResume();
 
         if (networkOnline()) {
-            showGrid();
+            //showGrid();
         } else {
             showNetworkError();
         }

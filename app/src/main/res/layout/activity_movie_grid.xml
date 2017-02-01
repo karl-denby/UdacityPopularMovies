@@ -23,7 +23,8 @@
         android:visibility="invisible"/>
 
     <GridView
-        android:columnWidth="180dp"
+        android:columnWidth="185dp"
+        android:gravity="center"
         android:id="@+id/gv_grid_posters"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
