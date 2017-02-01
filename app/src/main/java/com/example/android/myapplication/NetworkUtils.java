@@ -30,16 +30,18 @@ import java.util.Scanner;
 // Done: (0) ..Colors/Style/icon
 // Todo: (1) ..screen rotation is not an issue
 // Todo: (2) ..mark a movie as favourite (local movies collection)
-//              .. update detail layout to have checkbox (display as star?)
-//              .. store that data
+//              .. update detail layout to have checkbox (DONE)
+//              .. display as star
+//              .. store that data when selected
 // Todo: (3) ..when favorites selected shows favourites collection instead of query results
 //              .. update menu to show favourites option (DONE)
+//              .. show fake data (In Progress)
 //              .. show saved data instead of the query
 // Todo: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
 // Todo: (5) ..read reviews of a selected movie /movie/{id}/reviews
 // Todo: (6) ..titles and ids stored in a ContentProvider backed by SQLdatabase, updated when favourite is toggled
-// Todo: (E) .. store the other fields in the content provider so you can see them even when offline
-// Todo: (E) .. user can share the 1st trailers url
+// Todo: (E) ....store the other fields in the content provider so you can see them even when offline
+// Todo: (E) ....user can share the 1st trailers url
 
 /**
  * These utilities will be used to communicate with the network.
@@ -61,7 +63,7 @@ public class NetworkUtils {
     private final static String PARAM_KEY = "api_key";
 
     // ToDo: () ..Enter your API key below..
-    private final static String myKey = "YOUR_KEY_HERE";
+    private final static String myKey = "YOUR_KEY_GOES_HERE";
 
     /**
      * Builds the URL used to query out website.

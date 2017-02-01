@@ -48,14 +48,19 @@ public class MovieGrid extends AppCompatActivity {
         int clickedItem = item.getItemId();
 
         if (clickedItem == R.id.popular) {
-            mSortType = "popularity.desc"; queryAPI(mSortType);
+            mSortType = "popularity.desc";
+            queryAPI(mSortType);
         }
 
         if (clickedItem == R.id.rated) {
-            mSortType = "vote_average.desc"; queryAPI(mSortType);
+            mSortType = "vote_average.desc";
+            queryAPI(mSortType);
         }
 
-        queryAPI(mSortType);
+        if (clickedItem == R.id.favourite) {
+            showFavourites();
+        }
+
         Log.v("Query Param", clickedItem + " " + mSortType);
         return super.onOptionsItemSelected(item);
     }
@@ -142,6 +147,11 @@ public class MovieGrid extends AppCompatActivity {
         URL url = NetworkUtils.buildUrl(sortOption);
         QueryAsyncTask results = new QueryAsyncTask();
         results.execute(url);
+    }
+
+    private void showFavourites() {
+        mMovieGrid.setAdapter(null);
+        showGrid();
     }
 
     private class QueryAsyncTask extends AsyncTask<URL, Void, String> {
