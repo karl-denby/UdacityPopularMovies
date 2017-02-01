@@ -3,6 +3,9 @@ package com.example.android.myapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -23,6 +26,7 @@ public class MovieDetail extends AppCompatActivity {
     TextView mMovieOverview;
     RatingBar mMovieProgress;
     TextView mMovieReleaseDate;
+    CheckBox mMovieFavourite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,7 @@ public class MovieDetail extends AppCompatActivity {
         mMovieOverview = (TextView) findViewById(R.id.tv_detail_movie_overview);
         mMovieProgress = (RatingBar) findViewById(R.id.rb_detail_movie_vote_average);
         mMovieReleaseDate = (TextView) findViewById(R.id.tv_detail_movie_release_date);
+        mMovieFavourite = (CheckBox) findViewById(R.id.cb_is_favourite_movie);
 
         setMovieDetails(data);
     }

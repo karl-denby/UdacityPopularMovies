@@ -3,4 +3,5 @@
     <string name="grid_no_connection">No Connection</string>
     <string name="popular">Popular</string>
     <string name="top_rated">Top Rated</string>
+    <string name="favourite">Favourites</string>
 </resources>
