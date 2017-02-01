@@ -27,7 +27,7 @@ import java.util.Scanner;
 
 
 // Stage 2 to do list
-// Todo: (0) ..Colors/Style
+// Done: (0) ..Colors/Style/icon
 // Todo: (1) ..screen rotation is not an issue
 // Todo: (2) ..mark a movie as favourite (local movies collection)
 // Todo: (3) ..when favorites selected shows favourites collection instead of query results
