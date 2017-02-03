@@ -24,28 +24,29 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
-
-// Stage 2 to do list
-// Done: (0) ..Colors/Style/icon
-// Done: (1) ..screen rotation is not an issue
-// Todo: (2) ..mark a movie as favourite (local movies collection)
-//              .. update detail layout to have checkbox (DONE)
-//              .. store that data when selected
-//              .. display as star
-// Todo: (3) ..when favorites selected shows favourites collection instead of query results
-//              .. update menu to show favourites option (DONE)
-//              .. show fake data (In Progress)
-//              .. show saved data instead of the query
-// Todo: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
-// Todo: (5) ..read reviews of a selected movie /movie/{id}/reviews
-// Todo: (6) ..titles and ids stored in a ContentProvider backed by SQLdatabase, updated when favourite is toggled
-// Todo: (E) ....store the other fields in the content provider so you can see them even when offline
-// Todo: (E) ....user can share the 1st trailers url
+/*
+ * Stage 2: To Do List
+ * Done: (0) ..Colors/Style/icon
+ * Done: (1) ..screen rotation is not an issue
+ * Todo: (2) ..mark a movie as favourite (local movies collection)
+ *              .. update detail layout to have checkbox (DONE)
+ *              .. store that data when selected
+ *              .. display as star
+ * Todo: (3) ..when favorites selected shows favourites collection instead of query results
+ *              .. update menu to show favourites option (DONE)
+ *              .. show fake data (In Progress)
+ *              .. show saved data instead of the query
+ * Todo: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
+ * Todo: (5) ..read reviews of a selected movie /movie/{id}/reviews
+ * Todo: (6) ..titles and ids stored in a ContentProvider with SQL database, updated when toggled
+ * Todo: (E) ....store the other fields in the content provider for offline access
+ * Todo: (E) ....user can share the 1st trailers url
+ */
 
 /**
  * These utilities will be used to communicate with the network.
  */
-public class NetworkUtils {
+class NetworkUtils {
 
     private final static String BASE_URL =
             "https://api.themoviedb.org/3/discover/movie";
@@ -70,7 +71,7 @@ public class NetworkUtils {
      * @param searchQuery The keyword that will be queried for.
      * @return The URL to use to query the weather server.
      */
-    public static URL buildUrl(String searchQuery) {
+    static URL buildUrl(String searchQuery) {
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                 .appendQueryParameter(PARAM_SORT, searchQuery)
                 .appendQueryParameter(PARAM_KEY, myKey)
@@ -92,7 +93,7 @@ public class NetworkUtils {
      * @return The contents of the HTTP response.
      * @throws IOException Related to network and stream reading
      */
-    public static String getResponseFromHttpUrl(URL url) throws IOException {
+    static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
             InputStream in = urlConnection.getInputStream();
