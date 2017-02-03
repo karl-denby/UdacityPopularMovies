@@ -16,7 +16,6 @@
 package com.example.android.myapplication;
 
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,11 +27,11 @@ import java.util.Scanner;
 
 // Stage 2 to do list
 // Done: (0) ..Colors/Style/icon
-// Todo: (1) ..screen rotation is not an issue
+// Done: (1) ..screen rotation is not an issue
 // Todo: (2) ..mark a movie as favourite (local movies collection)
 //              .. update detail layout to have checkbox (DONE)
-//              .. display as star
 //              .. store that data when selected
+//              .. display as star
 // Todo: (3) ..when favorites selected shows favourites collection instead of query results
 //              .. update menu to show favourites option (DONE)
 //              .. show fake data (In Progress)
@@ -63,7 +62,7 @@ public class NetworkUtils {
     private final static String PARAM_KEY = "api_key";
 
     // ToDo: () ..Enter your API key below..
-    private final static String myKey = "YOUR_KEY_GOES_HERE";
+    private final static String myKey = "YOUR_API_KEY_HERE";
 
     /**
      * Builds the URL used to query out website.

@@ -2,6 +2,7 @@ package com.example.android.myapplication;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -22,7 +23,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
-
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
@@ -66,6 +66,20 @@ public class MovieGrid extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        Context context = this.getBaseContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                getString(R.string.app_name),
+                Context.MODE_PRIVATE
+        );
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("sort_order", mSortType);
+        editor.apply();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
 
@@ -76,8 +90,17 @@ public class MovieGrid extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        Context context = this.getBaseContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                getString(R.string.app_name),
+                Context.MODE_PRIVATE
+        );
+
+        mSortType = sharedPreferences.getString("sort_order", "popularity.desc");
+
         if (networkOnline()) {
-            //showGrid();
+            queryAPI(mSortType);
+            showGrid();
         } else {
             showNetworkError();
         }
@@ -99,10 +122,19 @@ public class MovieGrid extends AppCompatActivity {
             mSortType = "popularity.desc";
         }
 
-        if (networkOnline()) {
-            queryAPI(mSortType);
+        if (savedInstanceState == null) {
+            // no saved info:
+            //  check network is up
+            //  set a sensible default, query for it, show it
+            //  or show that network is not up
+            if (networkOnline()) {
+                queryAPI(mSortType);
+            } else {
+                showNetworkError();
+            }
         } else {
-            showNetworkError();
+            // just display our populated widget
+            showGrid();
         }
     }
 
@@ -128,19 +160,24 @@ public class MovieGrid extends AppCompatActivity {
     }
 
     private void showGrid() {
-        mProgressBar.setVisibility(View.INVISIBLE);
         mMovieGrid.setVisibility(View.VISIBLE);
+
+        mErrorText.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
     }
 
     private void showNetworkError() {
-        mProgressBar.setVisibility(View.INVISIBLE);
         mErrorText.setVisibility(View.VISIBLE);
+
+        mProgressBar.setVisibility(View.INVISIBLE);
+        mMovieGrid.setVisibility(View.INVISIBLE);
     }
 
     private void showProgressIndicator() {
+        mProgressBar.setVisibility(View.VISIBLE);
+
         mMovieGrid.setVisibility(View.INVISIBLE);
         mErrorText.setVisibility(View.INVISIBLE);
-        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     private void queryAPI(String sortOption) {
