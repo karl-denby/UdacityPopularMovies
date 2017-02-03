@@ -3,6 +3,7 @@ package com.example.android.myapplication;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -35,6 +36,8 @@ public class MovieGrid extends AppCompatActivity {
     String[] mMovieId = new String[10];
     String[] mPosterUrl = new String[10];
     String mSortType;
+    SavedFavouriteContract.SavedFavouriteDbHelper mSavedFavouriteDbHelper;
+    SQLiteDatabase mDatabase;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -110,6 +113,9 @@ public class MovieGrid extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_grid);
+
+        mSavedFavouriteDbHelper = new SavedFavouriteContract.SavedFavouriteDbHelper(this);
+        mDatabase = mSavedFavouriteDbHelper.getWritableDatabase();
 
         mProgressBar = (ProgressBar) findViewById(R.id.pb_grid_loading);
         mMovieGrid = (GridView) findViewById(R.id.gv_grid_posters);

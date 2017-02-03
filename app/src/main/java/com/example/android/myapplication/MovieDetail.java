@@ -1,14 +1,19 @@
 package com.example.android.myapplication;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -27,6 +32,8 @@ public class MovieDetail extends AppCompatActivity {
     RatingBar mMovieProgress;
     TextView mMovieReleaseDate;
     CheckBox mMovieFavourite;
+    SavedFavouriteContract.SavedFavouriteDbHelper mSavedFavouriteDbHelper;
+    SQLiteDatabase mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +50,27 @@ public class MovieDetail extends AppCompatActivity {
         mMovieProgress = (RatingBar) findViewById(R.id.rb_detail_movie_vote_average);
         mMovieReleaseDate = (TextView) findViewById(R.id.tv_detail_movie_release_date);
         mMovieFavourite = (CheckBox) findViewById(R.id.cb_is_favourite_movie);
+
+        mSavedFavouriteDbHelper = new SavedFavouriteContract.SavedFavouriteDbHelper(this);
+        mDatabase = mSavedFavouriteDbHelper.getWritableDatabase();
+
+        mMovieFavourite.setChecked(checkMovieFavourite(mMovieId));
+        mMovieFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Toast toast;
+                long rowCount;
+                if (isChecked) {
+                    rowCount = addMovieFavourite(mMovieId);
+                    toast = Toast.makeText(MovieDetail.this, "added " + rowCount, Toast.LENGTH_SHORT);
+                    toast.show();
+                } else {
+                    rowCount = delMovieFavourite(mMovieId);
+                    toast = Toast.makeText(MovieDetail.this, "removed " + rowCount, Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
+        });
 
         setMovieDetails(data);
     }
@@ -81,4 +109,52 @@ public class MovieDetail extends AppCompatActivity {
                 .centerCrop()
                 .into(mMoviePoster);
     }
+
+    private long addMovieFavourite(String _id) {
+        ContentValues values = new ContentValues();
+        values.put(SavedFavouriteContract.FeedEntry._ID, _id);
+
+        return mDatabase.insert(
+                SavedFavouriteContract.FeedEntry.TABLE_NAME,
+                SavedFavouriteContract.FeedEntry.COLUMN_NAME_NULLABLE,
+                values
+        );
+    }
+
+    private long delMovieFavourite(String _id) {
+        String selection = SavedFavouriteContract.FeedEntry._ID + " LIKE ?";  // WHERE col_name LIKE ?
+        String[] selectionArgs = new String[]{ String.valueOf(_id) };
+
+        return mDatabase.delete(
+                SavedFavouriteContract.FeedEntry.TABLE_NAME,
+                selection,
+                selectionArgs
+        );
+    }
+
+    private boolean checkMovieFavourite(String _id) {
+
+        String[] select_col = {SavedFavouriteContract.FeedEntry._ID};
+        String where_col = SavedFavouriteContract.FeedEntry._ID + "=?";
+        String[] where_val = {_id};
+
+        Cursor c = mDatabase.query(
+                SavedFavouriteContract.FeedEntry.TABLE_NAME,    // The table to query
+                select_col,                                     // The columns to return
+                where_col,                                      // The columns for the WHERE clause
+                where_val,                                      // The values for the WHERE clause
+                null,                                           // don't group the rows
+                null,                                           // don't filter by row groups
+                null                                            // The sort order
+        );
+
+        if (c.getCount() > 0) {
+            c.close();
+            return true;
+        } else {
+            c.close();
+            return false;
+        }
+    }
+
 }
