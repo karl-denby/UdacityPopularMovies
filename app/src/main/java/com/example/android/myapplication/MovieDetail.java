@@ -43,6 +43,7 @@ public class MovieDetail extends AppCompatActivity {
         Intent intent = getIntent();
         mMovieId = intent.getStringExtra(EXTRA_MESSAGE);
         String data = intent.getStringExtra("DATA");
+        boolean fav = intent.getBooleanExtra("FAV", false);
 
         mMovieTitle = (TextView) findViewById(R.id.tv_detail_movie_title);
         mMoviePoster = (ImageView) findViewById(R.id.iv_detail_movie_poster);
@@ -54,7 +55,12 @@ public class MovieDetail extends AppCompatActivity {
         mSavedFavouriteDbHelper = new SavedFavouriteContract.SavedFavouriteDbHelper(this);
         mDatabase = mSavedFavouriteDbHelper.getWritableDatabase();
 
-        final String[] movieData = setMovieDetails(data);
+        final String[] movieData;
+        if (fav) {
+            movieData = setFavouriteDetails(mMovieId);
+        } else {
+            movieData = setMovieDetails(data);
+        }
 
         mMovieFavourite.setChecked(checkMovieFavourite(mMovieId));
         mMovieFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -69,6 +75,57 @@ public class MovieDetail extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private String[] setFavouriteDetails(String _id) {
+        String[] movieDetails = {"", "", "", "", ""};
+
+        String[] select_col = {
+                SavedFavouriteContract.FeedEntry._ID,
+                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_TITLE,
+                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_POSTER,
+                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_OVERVIEW,
+                //SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RATING,
+                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RELEASE
+        };
+        String where_col = SavedFavouriteContract.FeedEntry._ID + "=?";
+        String[] where_val = {_id};
+
+        Cursor c = mDatabase.query(
+                SavedFavouriteContract.FeedEntry.TABLE_NAME,    // The table to query
+                select_col,                                     // The columns to return
+                where_col,                                      // The columns for the WHERE clause
+                where_val,                                      // The values for the WHERE clause
+                null,                                           // don't group the rows
+                null,                                           // don't filter by row groups
+                null                                            // The sort order
+        );
+
+        c.moveToFirst();
+
+        String title = c.getString(c.getColumnIndexOrThrow("title"));
+        movieDetails[0] = title;
+        mMovieTitle.setText(title);
+
+        String poster = c.getString(c.getColumnIndexOrThrow("poster"));
+        movieDetails[1] = poster;
+        setPoster(poster);
+
+        String overview = c.getString(c.getColumnIndexOrThrow("overview"));
+        movieDetails[2] = overview;
+        mMovieOverview.setText(overview);
+
+        //String rating = c.getString(c.getColumnIndexOrThrow("rating"));
+        //movieDetails[3] = rating;
+        mMovieProgress.setRating(5/2);
+
+        String release = c.getString(c.getColumnIndexOrThrow("release"));
+        movieDetails[4] = release;
+        mMovieReleaseDate.setText(release);
+
+        c.close();
+
+        return movieDetails;
     }
 
     private String[] setMovieDetails(String data) {

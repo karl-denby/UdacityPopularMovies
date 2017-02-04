@@ -32,9 +32,10 @@ import java.util.Scanner;
  *              .. update detail layout to have checkbox (DONE)
  *              .. store that data when selected (DONE)
  *              .. check present and toggle checkbox (DONE)
- * Todo: (3) ..when favorites selected shows favourites collection instead of query results
+ * Done: (3) ..when favorites selected shows favourites collection instead of query results
  *              .. update menu to show favourites option (DONE)
- *              .. show stored data (In Progress)
+ *              .. show stored data on grid (DONE)
+ *              .. show stored data on details (DONE)
  * Todo: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
  * Todo: (5) ..read reviews of a selected movie /movie/{id}/reviews
  * Todo: (6) ..titles and ids stored in a ContentProvider with SQL database, updated when toggled

@@ -3,6 +3,7 @@ package com.example.android.myapplication;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -100,13 +101,17 @@ public class MovieGrid extends AppCompatActivity {
         );
 
         mSortType = sharedPreferences.getString("sort_order", "popularity.desc");
-
-        if (networkOnline()) {
-            queryAPI(mSortType);
+        if (mSortType.equals(R.id.favourite)) {
             showGrid();
         } else {
-            showNetworkError();
+            if (networkOnline()) {
+                queryAPI(mSortType);
+                showGrid();
+            } else {
+                showNetworkError();
+            }
         }
+
     }
 
     @Override
@@ -121,13 +126,17 @@ public class MovieGrid extends AppCompatActivity {
         mMovieGrid = (GridView) findViewById(R.id.gv_grid_posters);
         mErrorText = (TextView) findViewById(R.id.tv_grid_error);
 
+        Context context = this.getBaseContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                getString(R.string.app_name),
+                Context.MODE_PRIVATE
+        );
+
+        mSortType = sharedPreferences.getString("sort_order", "popularity.desc");
+
         // Check for a valid network connection
         // run query
         // or error
-        if (mSortType == null) {
-            mSortType = "popularity.desc";
-        }
-
         if (savedInstanceState == null) {
             // no saved info:
             //  check network is up
@@ -148,8 +157,7 @@ public class MovieGrid extends AppCompatActivity {
         try {
             JSONObject reader = new JSONObject(data);
             JSONArray all_movies = reader.getJSONArray("results");
-            int i;
-            for (i = 0; i < 10; i++) {
+            for (int i = 0; i < 10; i++) {
                 JSONObject movie = all_movies.getJSONObject(i);
                 mMovieId[i] = movie.getString("id");
                 mPosterUrl[i] = movie.getString("poster_path");
@@ -157,6 +165,38 @@ public class MovieGrid extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void createFavouritesList() {
+        // clear out the list
+        for (int i = 0; i < 10; i++) {
+            mMovieId[i] = null;
+            mPosterUrl[i] = null;
+        }
+
+        String[] select_col = {
+                SavedFavouriteContract.FeedEntry._ID,
+                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_POSTER
+        };
+
+
+        Cursor c = mDatabase.query(
+                SavedFavouriteContract.FeedEntry.TABLE_NAME,    // The table to query
+                select_col,                                     // The columns to return
+                null,                                           // The columns for the WHERE clause
+                null,                                           // The values for the WHERE clause
+                null,                                           // don't group the rows
+                null,                                           // don't filter by row groups
+                null                                            // The sort order
+        );
+
+        c.moveToFirst();
+        for (int i = 0; i < c.getCount(); i++) {
+            mMovieId[i] = c.getString(c.getColumnIndexOrThrow("_id"));
+            mPosterUrl[i] = c.getString(c.getColumnIndexOrThrow("poster"));
+            c.moveToNext();
+        }
+        c.close();
     }
 
     private boolean networkOnline() {
@@ -193,7 +233,20 @@ public class MovieGrid extends AppCompatActivity {
     }
 
     private void showFavourites() {
+        createFavouritesList();
+
+        ImageAdapter adapter = new ImageAdapter(MovieGrid.this, mMovieId, mPosterUrl);
         mMovieGrid.setAdapter(null);
+        mMovieGrid.setAdapter(adapter);
+        mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                showProgressIndicator();
+                Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
+                intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
+                intent.putExtra("FAV", true);
+                startActivity(intent);
+            }
+        });
         showGrid();
     }
 
