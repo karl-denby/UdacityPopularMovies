@@ -38,7 +38,7 @@ import java.util.Scanner;
  * Todo: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
  * Todo: (5) ..read reviews of a selected movie /movie/{id}/reviews
  * Todo: (6) ..titles and ids stored in a ContentProvider with SQL database, updated when toggled
- * Todo: (E) ....store the other fields in the content provider for offline access
+ * DONE: (E) ....store the other fields in the content provider for offline access
  * Todo: (E) ....user can share the 1st trailers url
  */
 
@@ -62,7 +62,7 @@ class NetworkUtils {
     private final static String PARAM_KEY = "api_key";
 
     // ToDo: () ..Enter your API key below..
-    private final static String myKey = "YOUR_KEY_GOES_HERE";
+    private final static String myKey = "YOUR_API_KEY_HERE";
 
     /**
      * Builds the URL used to query out website.

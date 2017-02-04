@@ -54,6 +54,8 @@ public class MovieDetail extends AppCompatActivity {
         mSavedFavouriteDbHelper = new SavedFavouriteContract.SavedFavouriteDbHelper(this);
         mDatabase = mSavedFavouriteDbHelper.getWritableDatabase();
 
+        final String[] movieData = setMovieDetails(data);
+
         mMovieFavourite.setChecked(checkMovieFavourite(mMovieId));
         mMovieFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -61,21 +63,16 @@ public class MovieDetail extends AppCompatActivity {
                 Toast toast;
                 long rowCount;
                 if (isChecked) {
-                    rowCount = addMovieFavourite(mMovieId);
-                    toast = Toast.makeText(MovieDetail.this, "added " + rowCount, Toast.LENGTH_SHORT);
-                    toast.show();
+                    addMovieFavourite(mMovieId, movieData);
                 } else {
-                    rowCount = delMovieFavourite(mMovieId);
-                    toast = Toast.makeText(MovieDetail.this, "removed " + rowCount, Toast.LENGTH_SHORT);
-                    toast.show();
+                    delMovieFavourite(mMovieId);
                 }
             }
         });
-
-        setMovieDetails(data);
     }
 
-    private void setMovieDetails(String data) {
+    private String[] setMovieDetails(String data) {
+        String movieDetails[] = {"", "", "", "", ""};
         try {
             JSONObject reader = new JSONObject(data);
             JSONArray all_movies = reader.getJSONArray("results");
@@ -84,12 +81,28 @@ public class MovieDetail extends AppCompatActivity {
             for (int i = 0; i < all_movies.length(); i++) {
                 thisMovie = all_movies.getJSONObject(i);
                 if (thisMovie.getString("id").equals(mMovieId)) {
-                    mMovieTitle.setText(thisMovie.getString("title"));
-                    setPoster(thisMovie.getString("poster_path"));
-                    mMovieOverview.setText((thisMovie.getString("overview")));
-                    float vote_average = thisMovie.getLong("vote_average") / 2;
-                    mMovieProgress.setRating(vote_average);
-                    mMovieReleaseDate.setText(thisMovie.getString("release_date"));
+
+                    String title = thisMovie.getString("title");
+                    mMovieTitle.setText(title);
+
+                    String poster = thisMovie.getString("poster_path");
+                    setPoster(poster);
+
+                    String overview = thisMovie.getString("overview");
+                    mMovieOverview.setText(overview);
+
+                    float vote_average = thisMovie.getLong("vote_average");
+                    mMovieProgress.setRating(vote_average / 2);
+
+                    String release = thisMovie.getString("release_date");
+                    mMovieReleaseDate.setText(release);
+
+                    movieDetails[0] = title;
+                    movieDetails[1] = poster;
+                    movieDetails[2] = overview;
+                    movieDetails[3] = String.valueOf(vote_average);
+                    movieDetails[4] = release;
+
                     break;
                 }
             }
@@ -97,6 +110,8 @@ public class MovieDetail extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        return movieDetails;
     }
 
     private void setPoster(String poster_path) {
@@ -110,26 +125,35 @@ public class MovieDetail extends AppCompatActivity {
                 .into(mMoviePoster);
     }
 
-    private long addMovieFavourite(String _id) {
+    private long addMovieFavourite(String _id, String[] details) {
         ContentValues values = new ContentValues();
         values.put(SavedFavouriteContract.FeedEntry._ID, _id);
+        values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_TITLE, details[0]);
+        values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_POSTER, details[1]);
+        values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_OVERVIEW, details[2]);
+        //values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RATING, details[3]);
+        values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RELEASE, details[4]);
 
-        return mDatabase.insert(
+        long dbResult = mDatabase.insert(
                 SavedFavouriteContract.FeedEntry.TABLE_NAME,
                 SavedFavouriteContract.FeedEntry.COLUMN_NAME_NULLABLE,
                 values
         );
+        mDatabase.close();
+        return dbResult;
     }
 
     private long delMovieFavourite(String _id) {
         String selection = SavedFavouriteContract.FeedEntry._ID + " LIKE ?";  // WHERE col_name LIKE ?
         String[] selectionArgs = new String[]{ String.valueOf(_id) };
 
-        return mDatabase.delete(
+        long dbResult =  mDatabase.delete(
                 SavedFavouriteContract.FeedEntry.TABLE_NAME,
                 selection,
                 selectionArgs
         );
+        mDatabase.close();
+        return dbResult;
     }
 
     private boolean checkMovieFavourite(String _id) {
