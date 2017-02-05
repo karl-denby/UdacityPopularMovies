@@ -10,6 +10,8 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +43,7 @@ public class MovieGrid extends AppCompatActivity {
     SavedFavouriteContract.SavedFavouriteDbHelper mSavedFavouriteDbHelper;
     SQLiteDatabase mDatabase;
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.sort, menu);
@@ -57,7 +61,7 @@ public class MovieGrid extends AppCompatActivity {
         }
 
         if (clickedItem == R.id.rated) {
-            mSortType = "vote_average.desc";
+            mSortType = "vote_average.desc&vote_count.gte=20";
             queryAPI(mSortType);
         }
 
@@ -101,7 +105,7 @@ public class MovieGrid extends AppCompatActivity {
         );
 
         mSortType = sharedPreferences.getString("sort_order", "popularity.desc");
-        if (mSortType.equals(R.id.favourite)) {
+        if (mSortType.equals(getString(R.string.favourite))) {
             showGrid();
         } else {
             if (networkOnline()) {
@@ -150,20 +154,6 @@ public class MovieGrid extends AppCompatActivity {
         } else {
             // just display our populated widget
             showGrid();
-        }
-    }
-
-    private void createMovieList(String data) {
-        try {
-            JSONObject reader = new JSONObject(data);
-            JSONArray all_movies = reader.getJSONArray("results");
-            for (int i = 0; i < 10; i++) {
-                JSONObject movie = all_movies.getJSONObject(i);
-                mMovieId[i] = movie.getString("id");
-                mPosterUrl[i] = movie.getString("poster_path");
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 
@@ -226,12 +216,6 @@ public class MovieGrid extends AppCompatActivity {
         mErrorText.setVisibility(View.INVISIBLE);
     }
 
-    private void queryAPI(String sortOption) {
-        URL url = NetworkUtils.buildUrl(sortOption);
-        QueryAsyncTask results = new QueryAsyncTask();
-        results.execute(url);
-    }
-
     private void showFavourites() {
         createFavouritesList();
 
@@ -249,6 +233,14 @@ public class MovieGrid extends AppCompatActivity {
         });
         showGrid();
     }
+
+    private void queryAPI(String sortOption) {
+        URL url = NetworkUtils.buildGridUrl(sortOption);
+        QueryAsyncTask results = new QueryAsyncTask();
+        results.execute(url);
+    }
+
+
 
     private class QueryAsyncTask extends AsyncTask<URL, Void, String> {
         @Override
@@ -282,6 +274,20 @@ public class MovieGrid extends AppCompatActivity {
                 }
             });
             showGrid();
+        }
+    }
+
+    private void createMovieList(String data) {
+        try {
+            JSONObject reader = new JSONObject(data);
+            JSONArray all_movies = reader.getJSONArray("results");
+            for (int i = 0; i < 10; i++) {
+                JSONObject movie = all_movies.getJSONObject(i);
+                mMovieId[i] = movie.getString("id");
+                mPosterUrl[i] = movie.getString("poster_path");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 

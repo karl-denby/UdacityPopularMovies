@@ -4,9 +4,14 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -21,9 +26,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.URL;
+
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
-public class MovieDetail extends AppCompatActivity {
+public class MovieDetail extends AppCompatActivity implements ReviewAdapter.ListItemClickListener {
 
     String mMovieId = null;
     TextView mMovieTitle;
@@ -34,6 +42,9 @@ public class MovieDetail extends AppCompatActivity {
     CheckBox mMovieFavourite;
     SavedFavouriteContract.SavedFavouriteDbHelper mSavedFavouriteDbHelper;
     SQLiteDatabase mDatabase;
+    private static final int NUM_REVIEW_ITEMS = 10;
+    private ReviewAdapter mReviewAdapter;
+    private RecyclerView mReviewList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +86,22 @@ public class MovieDetail extends AppCompatActivity {
                 }
             }
         });
+
+        mReviewList = (RecyclerView) findViewById(R.id.rv_reviews);
+        LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
+        mReviewList.setLayoutManager(reviewLayoutManager);
+        mReviewList.setHasFixedSize(true);
+        mReviewAdapter = new ReviewAdapter(NUM_REVIEW_ITEMS, MovieDetail.this);
+        mReviewList.setAdapter(mReviewAdapter);
+
+        URL url = NetworkUtils.buildReviewUrl(mMovieId);
+        QueryAsyncTask results = new QueryAsyncTask();
+        results.execute(url);
+
+        url = NetworkUtils.buildTrailerUrl(mMovieId);
+        results = new QueryAsyncTask();
+        results.execute(url);
+
     }
 
     private String[] setFavouriteDetails(String _id) {
@@ -238,4 +265,28 @@ public class MovieDetail extends AppCompatActivity {
         }
     }
 
+    private class QueryAsyncTask extends AsyncTask<URL, Void, String> {
+        @Override
+        protected String doInBackground(URL... url) {
+
+            String response = "";
+            try {
+                response =  NetworkUtils.getResponseFromHttpUrl(url[0]);
+            } catch (IOException e) {
+                Log.v("queryAPI", e.toString());
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(final String response) {
+            super.onPostExecute(response);
+            // TODO: we have results now do something with them
+        }
+    }
+
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+        Toast.makeText(MovieDetail.this, "Item #" + clickedItemIndex + " clicked", Toast.LENGTH_SHORT).show();
+    }
 }
