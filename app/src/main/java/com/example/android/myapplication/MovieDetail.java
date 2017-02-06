@@ -87,7 +87,7 @@ public class MovieDetail extends AppCompatActivity implements ReviewAdapter.List
             }
         });
 
-        mReviewList = (RecyclerView) findViewById(R.id.rv_reviews);
+        mReviewList = (RecyclerView) findViewById(R.id.rv_trailers);
         LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
         mReviewList.setLayoutManager(reviewLayoutManager);
         mReviewList.setHasFixedSize(true);
