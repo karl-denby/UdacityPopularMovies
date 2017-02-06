@@ -85,30 +85,6 @@
             android:id="@+id/tv_trailer_heading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Trailers"
-            android:textSize="24sp"
-            android:padding="8dp"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/colorPrimaryDark" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:orientation="vertical">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_trailers"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tv_reviews_heading"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:text="Reviews"
             android:textSize="24sp"
             android:padding="8dp"/>
@@ -118,16 +94,36 @@
             android:layout_height="1dp"
             android:background="@color/colorPrimaryDark" />
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:orientation="vertical">
-
+            android:layout_height="wrap_content">
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_reviews"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-        </LinearLayout>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tv_reviews_heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Trailers"
+            android:textSize="24sp"
+            android:padding="8dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimaryDark" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_trailers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </FrameLayout>
 
     </LinearLayout>
 </ScrollView>

@@ -87,11 +87,20 @@ public class MovieDetail extends AppCompatActivity implements ReviewAdapter.List
             }
         });
 
-        mReviewList = (RecyclerView) findViewById(R.id.rv_trailers);
+        mReviewList = (RecyclerView) findViewById(R.id.rv_reviews);
         LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
         mReviewList.setLayoutManager(reviewLayoutManager);
         mReviewList.setHasFixedSize(true);
-        mReviewAdapter = new ReviewAdapter(NUM_REVIEW_ITEMS, MovieDetail.this);
+
+        String[] authors = {
+                "Johnny", "Bobby", "Donnie"
+        };
+
+        String[] reviews = {
+            "It was good", "It was OK", "It was bad"
+        };
+
+        mReviewAdapter = new ReviewAdapter(authors.length, MovieDetail.this, authors, reviews);
         mReviewList.setAdapter(mReviewAdapter);
 
         URL url = NetworkUtils.buildReviewUrl(mMovieId);

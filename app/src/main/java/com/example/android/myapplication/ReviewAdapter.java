@@ -1,6 +1,7 @@
 package com.example.android.myapplication;
 
 import android.content.Context;
+import android.content.SearchRecentSuggestionsProvider;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,14 +22,19 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     private int mNumberItems;
 
+    private final String[] mAuthors;
+    private final String[] mReviews;
+
     public interface ListItemClickListener {
         void onListItemClick(int clickedItemIndex);
     }
 
-    public ReviewAdapter(int numberOfItems, ListItemClickListener listener) {
+    public ReviewAdapter(int numberOfItems, ListItemClickListener listener, String[] authors, String[] reviews) {
         mNumberItems = numberOfItems;
         mOnClickListener = listener;
         viewHolderCount = 0;
+        mAuthors = authors;
+        mReviews = reviews;
     }
 
     @Override
@@ -84,7 +90,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             implements View.OnClickListener {
 
         // Will display the position in the list, ie 0 through getItemCount() - 1
-        TextView listReviewNumberView;
+        TextView listReviewAuthorView;
         // Will display which ViewHolder is displaying this data
         TextView listReviewTextView;
 
@@ -98,7 +104,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         public ReviewViewHolder(View itemView) {
             super(itemView);
 
-            listReviewNumberView = (TextView) itemView.findViewById(R.id.tv_review_number);
+            listReviewAuthorView = (TextView) itemView.findViewById(R.id.tv_review_author);
             listReviewTextView = (TextView) itemView.findViewById(R.id.tv_review_text);
 
             // COMPLETED (7) Call setOnClickListener on the View passed into the constructor (use 'this' as the OnClickListener)
@@ -111,8 +117,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
          * @param listIndex Position of the item in the list
          */
         void bind(int listIndex) {
-            listReviewNumberView.setText(String.valueOf(listIndex));
-            listReviewTextView.setText("blah blah blah");
+            listReviewAuthorView.setText(mAuthors[listIndex]);
+            listReviewTextView.setText(mReviews[listIndex]);
         }
 
         // COMPLETED (6) Override onClick, passing the clicked item's position (getAdapterPosition()) to mOnClickListener via its onListItemClick method
