@@ -92,24 +92,15 @@ public class MovieDetail extends AppCompatActivity implements ReviewAdapter.List
         mReviewList.setLayoutManager(reviewLayoutManager);
         mReviewList.setHasFixedSize(true);
 
-        String[] authors = {
-                "Johnny", "Bobby", "Donnie"
-        };
 
-        String[] reviews = {
-            "It was good", "It was OK", "It was bad"
-        };
-
-        mReviewAdapter = new ReviewAdapter(authors.length, MovieDetail.this, authors, reviews);
-        mReviewList.setAdapter(mReviewAdapter);
 
         URL url = NetworkUtils.buildReviewUrl(mMovieId);
         QueryAsyncTask results = new QueryAsyncTask();
         results.execute(url);
 
-        url = NetworkUtils.buildTrailerUrl(mMovieId);
-        results = new QueryAsyncTask();
-        results.execute(url);
+//        url = NetworkUtils.buildTrailerUrl(mMovieId);
+//        results = new QueryAsyncTask();
+//        results.execute(url);
 
     }
 
@@ -290,7 +281,24 @@ public class MovieDetail extends AppCompatActivity implements ReviewAdapter.List
         @Override
         protected void onPostExecute(final String response) {
             super.onPostExecute(response);
-            // TODO: we have results now do something with them
+
+            String[] authors = {"", "", ""};
+            String[] reviews = {"", "", ""};
+
+            try {
+                JSONObject reader = new JSONObject(response);
+                JSONArray all_reviews = reader.getJSONArray("results");
+                for (int i = 0; i < 3; i++) {
+                    JSONObject review = all_reviews.getJSONObject(i);
+                    authors[i] = review.getString("author");
+                    reviews[i] = review.getString("content");
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            mReviewAdapter = new ReviewAdapter(authors.length, MovieDetail.this, authors, reviews);
+            mReviewList.setAdapter(mReviewAdapter);
         }
     }
 

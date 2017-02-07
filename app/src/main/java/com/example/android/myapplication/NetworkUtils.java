@@ -42,11 +42,11 @@ import java.util.Scanner;
  * Todo: (E) ....user can share the 1st trailers url
  *           trailer url: https://api.themoviedb.org/3/movie/328111/videos?api_key=
  *
- * Todo: (5) ..read reviews of a selected movie /movie/{id}/reviews
+ * Done: (5) ..read reviews of a selected movie /movie/{id}/reviews
  *           review url: https://api.themoviedb.org/3/movie/328111/reviews?api_key=
  *
  * Todo: (6) ..titles and ids stored in a ContentProvider with SQL database, updated when toggled
- * DONE: (E) ....store the other fields in the content provider for offline access
+ * Done: (E) ....store the other fields in the content provider for offline access
  */
 
 /**
@@ -57,11 +57,8 @@ class NetworkUtils {
     private final static String BASE_URL =
             "https://api.themoviedb.org/3/movie";
 
-
-
     private final static String GRID_BASE_URL =
             "https://api.themoviedb.org/3/discover/movie";
-
 
     /*
      * The sort field. One of popularity.desc or vote_average.desc
@@ -75,7 +72,7 @@ class NetworkUtils {
     private final static String PARAM_KEY = "api_key";
 
     // ToDo: () ..Enter your API key below..
-    private final static String myKey = "YOUR_KEY_GOES_HERE";
+    private final static String myKey = "YOUR_API_KEY_HERE";
 
     /**
      * Builds the URL used to query themovedb.com for our list of movies
