@@ -38,7 +38,7 @@ import java.util.Scanner;
  *              .. show stored data on grid (DONE)
  *              .. show stored data on details (DONE)
  *
- * Todo: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
+ * Done: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
  * Todo: (E) ....user can share the 1st trailers url
  *           trailer url: https://api.themoviedb.org/3/movie/328111/videos?api_key=
  *

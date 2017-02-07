@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -349,6 +350,7 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
     @Override
     public void onListItemClick(String youtubeKey) {
         Toast.makeText(MovieDetail.this, "Key #" + youtubeKey, Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + youtubeKey)));
     }
 
 }
