@@ -16,8 +16,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     private static final String TAG = ReviewAdapter.class.getSimpleName();
 
-    final private ListItemClickListener mOnClickListener;
-
     private static int viewHolderCount;
 
     private int mNumberItems;
@@ -29,9 +27,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         void onListItemClick(int clickedItemIndex);
     }
 
-    public ReviewAdapter(int numberOfItems, ListItemClickListener listener, String[] authors, String[] reviews) {
+    public ReviewAdapter(int numberOfItems, String[] authors, String[] reviews) {
         mNumberItems = numberOfItems;
-        mOnClickListener = listener;
         viewHolderCount = 0;
         mAuthors = authors;
         mReviews = reviews;
@@ -86,8 +83,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     /**
      * Cache of the children views for a list item.
      */
-    class ReviewViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+    class ReviewViewHolder extends RecyclerView.ViewHolder {
 
         // Will display the position in the list, ie 0 through getItemCount() - 1
         TextView listReviewAuthorView;
@@ -95,9 +91,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         TextView listReviewTextView;
 
         /**
-         * Constructor for our ViewHolder. Within this constructor, we get a reference to our
-         * TextViews and set an onClickListener to listen for clicks. Those will be handled in the
-         * onClick method below.
+         * Constructor for our ViewHolder.
          * @param itemView The View that you inflated in
          *                 {@link ReviewAdapter#onCreateViewHolder(ViewGroup, int)}
          */
@@ -107,8 +101,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             listReviewAuthorView = (TextView) itemView.findViewById(R.id.tv_review_author);
             listReviewTextView = (TextView) itemView.findViewById(R.id.tv_review_text);
 
-            // COMPLETED (7) Call setOnClickListener on the View passed into the constructor (use 'this' as the OnClickListener)
-            itemView.setOnClickListener(this);
         }
 
         /**
@@ -119,17 +111,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         void bind(int listIndex) {
             listReviewAuthorView.setText(mAuthors[listIndex]);
             listReviewTextView.setText(mReviews[listIndex]);
-        }
-
-        // COMPLETED (6) Override onClick, passing the clicked item's position (getAdapterPosition()) to mOnClickListener via its onListItemClick method
-        /**
-         * Called whenever a user clicks on an item in the list.
-         * @param v The View that was clicked
-         */
-        @Override
-        public void onClick(View v) {
-            int clickedPosition = getAdapterPosition();
-            mOnClickListener.onListItemClick(clickedPosition);
         }
     }
 

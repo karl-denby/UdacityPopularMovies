@@ -31,7 +31,7 @@ import java.net.URL;
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
-public class MovieDetail extends AppCompatActivity implements ReviewAdapter.ListItemClickListener {
+public class MovieDetail extends AppCompatActivity implements TrailerAdapter.ListItemClickListener {
 
     String mMovieId = null;
     TextView mMovieTitle;
@@ -45,6 +45,8 @@ public class MovieDetail extends AppCompatActivity implements ReviewAdapter.List
     private static final int NUM_REVIEW_ITEMS = 10;
     private ReviewAdapter mReviewAdapter;
     private RecyclerView mReviewList;
+    private TrailerAdapter mTrailerAdapter;
+    private RecyclerView mTrailerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,16 +94,18 @@ public class MovieDetail extends AppCompatActivity implements ReviewAdapter.List
         mReviewList.setLayoutManager(reviewLayoutManager);
         mReviewList.setHasFixedSize(true);
 
-
+        mTrailerList = (RecyclerView) findViewById(R.id.rv_trailers);
+        LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(this);
+        mTrailerList.setLayoutManager(trailerLayoutManager);
+        mTrailerList.setHasFixedSize(true);
 
         URL url = NetworkUtils.buildReviewUrl(mMovieId);
-        QueryAsyncTask results = new QueryAsyncTask();
-        results.execute(url);
+        ReviewAsyncTask reviewResults = new ReviewAsyncTask();
+        reviewResults.execute(url);
 
-//        url = NetworkUtils.buildTrailerUrl(mMovieId);
-//        results = new QueryAsyncTask();
-//        results.execute(url);
-
+        url = NetworkUtils.buildTrailerUrl(mMovieId);
+        MovieAsyncTask movieResults = new MovieAsyncTask();
+        movieResults.execute(url);
     }
 
     private String[] setFavouriteDetails(String _id) {
@@ -265,7 +269,7 @@ public class MovieDetail extends AppCompatActivity implements ReviewAdapter.List
         }
     }
 
-    private class QueryAsyncTask extends AsyncTask<URL, Void, String> {
+    private class ReviewAsyncTask extends AsyncTask<URL, Void, String> {
         @Override
         protected String doInBackground(URL... url) {
 
@@ -285,6 +289,7 @@ public class MovieDetail extends AppCompatActivity implements ReviewAdapter.List
             String[] authors = {"", "", ""};
             String[] reviews = {"", "", ""};
 
+            // key/name for video id/title
             try {
                 JSONObject reader = new JSONObject(response);
                 JSONArray all_reviews = reader.getJSONArray("results");
@@ -297,13 +302,53 @@ public class MovieDetail extends AppCompatActivity implements ReviewAdapter.List
                 e.printStackTrace();
             }
 
-            mReviewAdapter = new ReviewAdapter(authors.length, MovieDetail.this, authors, reviews);
+            mReviewAdapter = new ReviewAdapter(authors.length, authors, reviews);
             mReviewList.setAdapter(mReviewAdapter);
         }
     }
 
-    @Override
-    public void onListItemClick(int clickedItemIndex) {
-        Toast.makeText(MovieDetail.this, "Item #" + clickedItemIndex + " clicked", Toast.LENGTH_SHORT).show();
+    private class MovieAsyncTask extends AsyncTask<URL, Void, String> {
+        @Override
+        protected String doInBackground(URL... url) {
+
+            String response = "";
+            try {
+                response =  NetworkUtils.getResponseFromHttpUrl(url[0]);
+            } catch (IOException e) {
+                Log.v("queryAPI", e.toString());
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(final String response) {
+            super.onPostExecute(response);
+
+            String[] vid_id = {"", "", ""};
+            String[] vid_name = {"", "", ""};
+
+            // key/name for video id/title
+            try {
+                JSONObject reader = new JSONObject(response);
+                JSONArray all_reviews = reader.getJSONArray("results");
+                for (int i = 0; i < 3; i++) {
+                    JSONObject review = all_reviews.getJSONObject(i);
+                    vid_id[i] = review.getString("key");
+                    vid_name[i] = review.getString("name");
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            mTrailerAdapter = new TrailerAdapter(vid_id.length, MovieDetail.this, vid_name, vid_id);
+            mTrailerList.setAdapter(mTrailerAdapter);
+        }
     }
+
+
+    @Override
+    public void onListItemClick(String youtubeKey) {
+        Toast.makeText(MovieDetail.this, "Key #" + youtubeKey, Toast.LENGTH_SHORT).show();
+    }
+
 }

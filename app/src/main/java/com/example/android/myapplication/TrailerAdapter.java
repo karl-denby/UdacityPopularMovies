@@ -6,10 +6,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
-public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHolder>{
+public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHolder> {
 
     private static final String TAG = TrailerAdapter.class.getSimpleName();
 
@@ -19,25 +20,25 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
 
     private int mNumberItems;
 
-    private final String[] mLinkA;
-    private final String[] mLinkB;
+    private final String[] mName;
+    private final String[] mKey;
 
     public interface ListItemClickListener {
-        void onListItemClick(int clickedItemIndex);
+        void onListItemClick(String youtubeKey);
     }
 
-    public TrailerAdapter(int numberOfItems, ListItemClickListener listener, String[] linkA, String[] linkB) {
+    public TrailerAdapter(int numberOfItems, ListItemClickListener listener, String[] name, String[] key) {
         mNumberItems = numberOfItems;
         mOnClickListener = listener;
         viewHolderCount = 0;
-        mLinkA = linkA;
-        mLinkB = linkB;
+        mName = name;
+        mKey = key;
     }
 
     @Override
     public TrailerViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
-        int layoutIdForListItem = R.layout.recycled_movie_reviews;
+        int layoutIdForListItem = R.layout.recycled_movie_trailers;
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
 
@@ -87,9 +88,8 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
             implements View.OnClickListener {
 
         // Will display the position in the list, ie 0 through getItemCount() - 1
-        TextView listReviewAuthorView;
-        // Will display which ViewHolder is displaying this data
-        TextView listReviewTextView;
+        TextView listTrailerName;
+        ImageView ivTrailerIcon;
 
         /**
          * Constructor for our ViewHolder. Within this constructor, we get a reference to our
@@ -101,8 +101,8 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         public TrailerViewHolder(View itemView) {
             super(itemView);
 
-            listReviewAuthorView = (TextView) itemView.findViewById(R.id.tv_review_author);
-            listReviewTextView = (TextView) itemView.findViewById(R.id.tv_review_text);
+            ivTrailerIcon = (ImageView) itemView.findViewById(R.id.iv_trailer);
+            listTrailerName = (TextView) itemView.findViewById(R.id.tv_trailer_name);
 
             // COMPLETED (7) Call setOnClickListener on the View passed into the constructor (use 'this' as the OnClickListener)
             itemView.setOnClickListener(this);
@@ -114,8 +114,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
          * @param listIndex Position of the item in the list
          */
         void bind(int listIndex) {
-            listReviewAuthorView.setText(mLinkA[listIndex]);
-            listReviewTextView.setText(mLinkB[listIndex]);
+            listTrailerName.setText(mName[listIndex]);
         }
 
         // COMPLETED (6) Override onClick, passing the clicked item's position (getAdapterPosition()) to mOnClickListener via its onListItemClick method
@@ -126,7 +125,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
-            mOnClickListener.onListItemClick(clickedPosition);
+            mOnClickListener.onListItemClick(mKey[clickedPosition]);
         }
     }
 
