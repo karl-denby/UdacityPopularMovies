@@ -23,6 +23,11 @@
         <activity android:name=".MovieDetail">
         </activity>
 
+        <provider
+            android:name=".FavouriteProvider"
+            android:authorities="com.example.android.myapplication.provider"
+            android:exported="false"/>
+
     </application>
 
 </manifest>
