@@ -45,6 +45,7 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
     TrailerAdapter mTrailerAdapter;
     RecyclerView mTrailerList;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,58 +107,56 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
     }
 
     private String[] setFavouriteDetails(String _id) {
-        String[] movieDetails = {"", "", "", "", ""};
-
-        String[] select_col = {
+        String[] movieDetails = {"", "", "", "", "", ""};
+        String[] projection = {
                 SavedFavouriteContract.FavEntry._ID,
                 SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_TITLE,
                 SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_POSTER,
                 SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_OVERVIEW,
-                //SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RATING,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RATING,
                 SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RELEASE
         };
-        String where_col = SavedFavouriteContract.FavEntry._ID + "=?";
-        String[] where_val = {_id};
+        String selection = SavedFavouriteContract.FavEntry._ID + "=?";
+        String[] selectionArgs = {_id};
 
-        Cursor c = mDatabase.query(
-                SavedFavouriteContract.FavEntry.TABLE_NAME,    // The table to query
-                select_col,                                     // The columns to return
-                where_col,                                      // The columns for the WHERE clause
-                where_val,                                      // The values for the WHERE clause
-                null,                                           // don't group the rows
-                null,                                           // don't filter by row groups
-                null                                            // The sort order
+        Cursor c = getContentResolver().query(
+                SavedFavouriteContract.MovieEntry.CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
         );
 
-        c.moveToFirst();
+        if (c != null) {
+            c.moveToFirst();
 
-        String title = c.getString(c.getColumnIndexOrThrow("title"));
-        movieDetails[0] = title;
-        mMovieTitle.setText(title);
+            String title = c.getString(c.getColumnIndexOrThrow("title"));
+            movieDetails[0] = title;
+            mMovieTitle.setText(title);
 
-        String poster = c.getString(c.getColumnIndexOrThrow("poster"));
-        movieDetails[1] = poster;
-        setPoster(poster);
+            String poster = c.getString(c.getColumnIndexOrThrow("poster"));
+            movieDetails[1] = poster;
+            setPoster(poster);
 
-        String overview = c.getString(c.getColumnIndexOrThrow("overview"));
-        movieDetails[2] = overview;
-        mMovieOverview.setText(overview);
+            String overview = c.getString(c.getColumnIndexOrThrow("overview"));
+            movieDetails[2] = overview;
+            mMovieOverview.setText(overview);
 
-        //String rating = c.getString(c.getColumnIndexOrThrow("rating"));
-        //movieDetails[3] = rating;
-        mMovieProgress.setRating(5/2);
+            String rating = c.getString(c.getColumnIndexOrThrow("rating"));
+            movieDetails[3] = rating;
+            mMovieProgress.setRating(Float.valueOf(rating) / 2);
 
-        String release = c.getString(c.getColumnIndexOrThrow("release"));
-        movieDetails[4] = release;
-        mMovieReleaseDate.setText(release);
+            String release = c.getString(c.getColumnIndexOrThrow("release"));
+            movieDetails[4] = release;
+            mMovieReleaseDate.setText(release);
 
-        c.close();
-
+            c.close();
+        }
         return movieDetails;
     }
 
     private String[] setMovieDetails(String data) {
-        String movieDetails[] = {"", "", "", "", ""};
+        String movieDetails[] = {"", "", "", "", "", ""};
         try {
             JSONObject reader = new JSONObject(data);
             JSONArray all_movies = reader.getJSONArray("results");
@@ -216,7 +215,7 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
         values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_TITLE, details[0]);
         values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_POSTER, details[1]);
         values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_OVERVIEW, details[2]);
-        //values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RATING, details[3]);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RATING, details[3]);
         values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RELEASE, details[4]);
 
         getContentResolver().insert(SavedFavouriteContract.MovieEntry.CONTENT_URI, values);
@@ -234,7 +233,7 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
         String selection = SavedFavouriteContract.FavEntry._ID + "=?";
         String[] selectionArgs = {_id};
 
-                Cursor c = getContentResolver().query(
+                Cursor fav = getContentResolver().query(
                         SavedFavouriteContract.MovieEntry.CONTENT_URI,
                         projection,
                         selection,
@@ -242,13 +241,14 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
                         null
                 );
 
-        if (c.getCount() > 0) {
-            c.close();
+        if (fav.getCount() > 0) {
+            fav.close();
             return true;
         } else {
-            c.close();
+            fav.close();
             return false;
         }
+
     }
 
     private class ReviewAsyncTask extends AsyncTask<URL, Void, String> {
@@ -326,7 +326,6 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
             mTrailerList.setAdapter(mTrailerAdapter);
         }
     }
-
 
     @Override
     public void onListItemClick(String youtubeKey) {

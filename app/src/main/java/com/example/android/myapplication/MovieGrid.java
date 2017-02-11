@@ -103,7 +103,7 @@ public class MovieGrid extends AppCompatActivity {
         mSortType = sharedPreferences.getString(getString(R.string.pref_sort_order), getString(R.string.sort_pop_desc));
 
         if (mSortType.equals(getString(R.string.sort_fav))) {
-            showGrid();
+            showFavourites();
         } else {
             if (networkOnline()) {
                 queryAPI(mSortType);

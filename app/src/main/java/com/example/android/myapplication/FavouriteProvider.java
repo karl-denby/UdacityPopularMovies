@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 
 public class FavouriteProvider extends ContentProvider {
@@ -91,7 +92,6 @@ public class FavouriteProvider extends ContentProvider {
                         null,                                       // don't filter by row groups
                         sortOrder                                   // The sort order
                 );
-                db.close();
                 break;
 
             default:
@@ -118,15 +118,15 @@ public class FavouriteProvider extends ContentProvider {
             case (FAVOURITES):
                 long deletedRowCount = db.delete(SavedFavouriteContract.FavEntry.TABLE_NAME, selection, selectionArgs);
                 db.close();
-                if (deletedRowCount == 1) {
+                if (deletedRowCount > 0) {
                     return 0;
                 } else {
-                    throw new UnsupportedOperationException("Delete Error: " + uri.toString());
+                    //throw new UnsupportedOperationException("Delete Error: " + uri.toString());
+                    return 1;
                 }
             default:
                 throw new UnsupportedOperationException("Unknown URI");
         }
-
     }
 
     // MIME

@@ -35,7 +35,7 @@ final class SavedFavouriteContract {
                     FavEntry._ID + " INTEGER PRIMARY KEY," +
                     FavEntry.COLUMN_NAME_MOVIE_TITLE + TEXT_TYPE + COMMA_SEP +
                     FavEntry.COLUMN_NAME_MOVIE_POSTER + TEXT_TYPE + COMMA_SEP +
-                    FavEntry.COLUMN_NAME_MOVIE_OVERVIEW + INTEGER_TYPE +
+                    FavEntry.COLUMN_NAME_MOVIE_OVERVIEW + INTEGER_TYPE + COMMA_SEP +
                     FavEntry.COLUMN_NAME_MOVIE_RATING + FLOAT_TYPE + COMMA_SEP +
                     FavEntry.COLUMN_NAME_MOVIE_RELEASE + TEXT_TYPE +
                     " )";
@@ -68,7 +68,7 @@ final class SavedFavouriteContract {
      *  Maintenance operations Create/upgrade/drop etc.
      */
     static class SavedFavouriteDbHelper extends SQLiteOpenHelper {
-        static final int DATABASE_VERSION = 6;
+        static final int DATABASE_VERSION = 9;
         static final String DATABASE_NAME = "Movies.db";
 
         SavedFavouriteDbHelper(Context context) {
