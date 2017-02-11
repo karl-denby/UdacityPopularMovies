@@ -223,13 +223,17 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
         //values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RATING, details[3]);
         values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RELEASE, details[4]);
 
+        /* Via SQL
         long dbResult = mDatabase.insert(
                 SavedFavouriteContract.FeedEntry.TABLE_NAME,
                 SavedFavouriteContract.FeedEntry.COLUMN_NAME_NULLABLE,
                 values
         );
         mDatabase.close();
-        return dbResult;
+        */
+        Uri uri = getContentResolver().insert(SavedFavouriteContract.TaskEntry.CONTENT_URI, values);
+
+        return 0;
     }
 
     private long delMovieFavourite(String _id) {
