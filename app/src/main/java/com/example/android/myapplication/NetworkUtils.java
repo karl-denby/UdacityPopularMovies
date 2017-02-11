@@ -25,57 +25,22 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
-/*
- * Stage 2: To Do List
- * Done: (0) ..Colors/Style/icon
- * Done: (1) ..screen rotation is not an issue
- * Done: (2) ..mark a movie as favourite (local movies collection)
- *              .. update detail layout to have checkbox (DONE)
- *              .. store that data when selected (DONE)
- *              .. check present and toggle checkbox (DONE)
- *  Done: (3) ..when favorites selected shows favourites collection instead of query results
- *              .. update menu to show favourites option (DONE)
- *              .. show stored data on grid (DONE)
- *              .. show stored data on details (DONE)
- *
- * Done: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
- * Skip: (E) ....user can share the 1st trailers url
- *           trailer url: https://api.themoviedb.org/3/movie/328111/videos?api_key=
- *
- * Done: (5) ..read reviews of a selected movie /movie/{id}/reviews
- *           review url: https://api.themoviedb.org/3/movie/328111/reviews?api_key=
- *
- * Done: (6) ..titles and ids stored in a ContentProvider with SQL database, updated when toggled
- * Done: (E) ....store the other fields in the content provider for offline access
- */
 
 /**
  * These utilities will be used to communicate with the network.
  */
 class NetworkUtils {
 
-    private final static String BASE_URL =
-            "https://api.themoviedb.org/3/movie";
-
-    private final static String GRID_BASE_URL =
-            "https://api.themoviedb.org/3/discover/movie";
-
-    /*
-     * The sort field. One of popularity.desc or vote_average.desc
-     */
+    private final static String BASE_URL = "https://api.themoviedb.org/3/movie";
+    private final static String GRID_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     private final static String GRID_PARAM_SORT = "sort_by";
-
-    /*
-     * The API key.  You need to register with themoviedb.com and create one
-     * then place it in here
-     */
     private final static String PARAM_KEY = "api_key";
 
     // ToDo: () ..Enter your API key below..
     private final static String myKey = "YOUR_API_KEY_HERE";
 
     /**
-     * Builds the URL used to query themovedb.com for our list of movies
+     * Builds the URL used to query the movie db .com for our list of movies
      *
      * @param searchQuery The keywords that will be queried for
      * @return The URL to use to query the server
@@ -96,7 +61,7 @@ class NetworkUtils {
     }
 
     /**
-     * Builds the URL used to query themovedb.com for our list of movies
+     * Builds the URL used to query the movie db.com for our reviews of the movie
      *
      * @param  movieId The id of the movie that we want reviews for
      * @return The URL to use to query the server
@@ -119,7 +84,7 @@ class NetworkUtils {
     }
 
     /**
-     * Builds the URL used to query themovedb.com for our list of movies
+     * Builds the URL used to query the moviedb.com for our movie trailers
      *
      * @param  movieId The id of the movie that we want reviews for
      * @return The URL to use to query the server

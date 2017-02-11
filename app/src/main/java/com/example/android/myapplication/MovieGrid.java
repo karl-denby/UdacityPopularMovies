@@ -10,8 +10,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +40,6 @@ public class MovieGrid extends AppCompatActivity {
     SavedFavouriteContract.SavedFavouriteDbHelper mSavedFavouriteDbHelper;
     SQLiteDatabase mDatabase;
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.sort, menu);
@@ -56,12 +52,12 @@ public class MovieGrid extends AppCompatActivity {
         int clickedItem = item.getItemId();
 
         if (clickedItem == R.id.popular) {
-            mSortType = "popularity.desc";
+            mSortType = getString(R.string.sort_pop_desc);
             queryAPI(mSortType);
         }
 
         if (clickedItem == R.id.rated) {
-            mSortType = "vote_average.desc&vote_count.gte=20";
+            mSortType = getString(R.string.sort_avg_desc);
             queryAPI(mSortType);
         }
 
@@ -69,7 +65,6 @@ public class MovieGrid extends AppCompatActivity {
             showFavourites();
         }
 
-        Log.v("Query Param", clickedItem + " " + mSortType);
         return super.onOptionsItemSelected(item);
     }
 
@@ -83,7 +78,7 @@ public class MovieGrid extends AppCompatActivity {
                 Context.MODE_PRIVATE
         );
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("sort_order", mSortType);
+        editor.putString(getString(R.string.pref_sort_order), mSortType);
         editor.apply();
     }
 
@@ -104,7 +99,8 @@ public class MovieGrid extends AppCompatActivity {
                 Context.MODE_PRIVATE
         );
 
-        mSortType = sharedPreferences.getString("sort_order", "popularity.desc");
+        mSortType = sharedPreferences.getString(getString(R.string.pref_sort_order), getString(R.string.sort_pop_desc));
+
         if (mSortType.equals(getString(R.string.favourite))) {
             showGrid();
         } else {
@@ -136,7 +132,7 @@ public class MovieGrid extends AppCompatActivity {
                 Context.MODE_PRIVATE
         );
 
-        mSortType = sharedPreferences.getString("sort_order", "popularity.desc");
+        mSortType = sharedPreferences.getString(getString(R.string.pref_sort_order), getString(R.string.sort_pop_desc));
 
         // Check for a valid network connection
         // run query
@@ -165,13 +161,13 @@ public class MovieGrid extends AppCompatActivity {
         }
 
         String[] select_col = {
-                SavedFavouriteContract.FeedEntry._ID,
-                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_POSTER
+                SavedFavouriteContract.FavEntry._ID,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_POSTER
         };
 
 
         Cursor c = mDatabase.query(
-                SavedFavouriteContract.FeedEntry.TABLE_NAME,    // The table to query
+                SavedFavouriteContract.FavEntry.TABLE_NAME,    // The table to query
                 select_col,                                     // The columns to return
                 null,                                           // The columns for the WHERE clause
                 null,                                           // The values for the WHERE clause
@@ -227,7 +223,7 @@ public class MovieGrid extends AppCompatActivity {
                 showProgressIndicator();
                 Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
                 intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
-                intent.putExtra("FAV", true);
+                intent.putExtra(getString(R.string.extra_fav), true);
                 startActivity(intent);
             }
         });
@@ -250,7 +246,7 @@ public class MovieGrid extends AppCompatActivity {
             try {
                 response =  NetworkUtils.getResponseFromHttpUrl(url[0]);
             } catch (IOException e) {
-                Log.v("queryAPI", e.toString());
+                Log.v(getString(R.string.error_http_response), e.toString());
             }
             return response;
         }
@@ -269,7 +265,7 @@ public class MovieGrid extends AppCompatActivity {
                     showProgressIndicator();
                     Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
                     intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
-                    intent.putExtra("DATA", mResponseFromJSON);
+                    intent.putExtra(getString(R.string.extra_data), mResponseFromJSON);
                     startActivity(intent);
                 }
             });

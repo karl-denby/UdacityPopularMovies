@@ -1,7 +1,6 @@
 package com.example.android.myapplication;
 
 import android.content.Context;
-import android.content.SearchRecentSuggestionsProvider;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,17 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
 
-
-public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>{
+class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>{
 
     private static final String TAG = ReviewAdapter.class.getSimpleName();
-
     private static int viewHolderCount;
-
     private int mNumberItems;
-
     private final String[] mAuthors;
     private final String[] mReviews;
 
@@ -27,7 +21,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         void onListItemClick(int clickedItemIndex);
     }
 
-    public ReviewAdapter(int numberOfItems, String[] authors, String[] reviews) {
+    ReviewAdapter(int numberOfItems, String[] authors, String[] reviews) {
         mNumberItems = numberOfItems;
         viewHolderCount = 0;
         mAuthors = authors;
@@ -43,12 +37,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
         View view = inflater.inflate(layoutIdForListItem, viewGroup, shouldAttachToParentImmediately);
         ReviewViewHolder viewHolder = new ReviewViewHolder(view);
-
-        //viewHolder.viewHolderIndex.setText("ViewHolder index: " + viewHolderCount);
-
         viewHolderCount++;
-        Log.d(TAG, "onCreateViewHolder: number of ViewHolders created: "
-                + viewHolderCount);
+
         return viewHolder;
     }
 
@@ -95,7 +85,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
          * @param itemView The View that you inflated in
          *                 {@link ReviewAdapter#onCreateViewHolder(ViewGroup, int)}
          */
-        public ReviewViewHolder(View itemView) {
+        ReviewViewHolder(View itemView) {
             super(itemView);
 
             listReviewAuthorView = (TextView) itemView.findViewById(R.id.tv_review_author);
@@ -104,8 +94,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         }
 
         /**
-         * A method we wrote for convenience. This method will take an integer as input and
-         * use that integer to display the appropriate text within a list item.
+         * given the id of the review we can grab it from an array that contains all authors/reviews
          * @param listIndex Position of the item in the list
          */
         void bind(int listIndex) {

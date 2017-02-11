@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 
 public class FavouriteProvider extends ContentProvider {
@@ -23,24 +22,20 @@ public class FavouriteProvider extends ContentProvider {
     public static final String AUTHORITY = "com.example.android.myapplication.provider";
     public static final String PATH = "/movies";
 
-    // URI Matcher constants
+    // URI Matcher
     public static final int FAVOURITES = 100;
     public static final int FAVOURITE_WITH_ID = 101;
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
     public static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-
-        // directory and individual uri's
         uriMatcher.addURI(AUTHORITY, PATH, FAVOURITES);
         uriMatcher.addURI(AUTHORITY, PATH + "/#", FAVOURITE_WITH_ID);
-
         return uriMatcher;
     }
 
     // Initialize
-    public FavouriteProvider() {
-    }
+    public FavouriteProvider() {}
 
     @Override
     public boolean onCreate() {
@@ -59,7 +54,7 @@ public class FavouriteProvider extends ContentProvider {
 
         switch (match) {
             case (FAVOURITES):
-                long id = db.insert(SavedFavouriteContract.FeedEntry.TABLE_NAME, null, values);
+                long id = db.insert(SavedFavouriteContract.FavEntry.TABLE_NAME, null, values);
                 db.close();
 
                 if (id > 0) {
@@ -88,13 +83,13 @@ public class FavouriteProvider extends ContentProvider {
         switch (match) {
             case (FAVOURITES):
                 returnCursor = db.query(
-                        SavedFavouriteContract.FeedEntry.TABLE_NAME,    // The table to query
-                        projection,                                     // The columns to return
-                        selection,                                      // The columns for the WHERE clause
-                        selectionArgs,                                  // The values for the WHERE clause
-                        null,                                           // don't group the rows
-                        null,                                           // don't filter by row groups
-                        sortOrder                                       // The sort order
+                        SavedFavouriteContract.FavEntry.TABLE_NAME, // The table to query
+                        projection,                                 // The columns to return
+                        selection,                                  // The columns for the WHERE clause
+                        selectionArgs,                              // The values for the WHERE clause
+                        null,                                       // don't group the rows
+                        null,                                       // don't filter by row groups
+                        sortOrder                                   // The sort order
                 );
                 db.close();
                 break;
@@ -109,7 +104,6 @@ public class FavouriteProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
@@ -122,7 +116,7 @@ public class FavouriteProvider extends ContentProvider {
 
         switch (match) {
             case (FAVOURITES):
-                long deletedRowCount = db.delete(SavedFavouriteContract.FeedEntry.TABLE_NAME, selection, selectionArgs);
+                long deletedRowCount = db.delete(SavedFavouriteContract.FavEntry.TABLE_NAME, selection, selectionArgs);
                 db.close();
                 if (deletedRowCount == 1) {
                     return 0;
@@ -135,11 +129,9 @@ public class FavouriteProvider extends ContentProvider {
 
     }
 
-    // Other
+    // MIME
     @Override
     public String getType(@NonNull Uri uri) {
-        // TODO: Implement this to handle requests for the MIME type of the data
-        // at the given URI.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 }

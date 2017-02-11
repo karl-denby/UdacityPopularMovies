@@ -10,24 +10,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHolder> {
+class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHolder> {
 
     private static final String TAG = TrailerAdapter.class.getSimpleName();
-
     final private ListItemClickListener mOnClickListener;
-
     private static int viewHolderCount;
-
     private int mNumberItems;
-
     private final String[] mName;
     private final String[] mKey;
 
-    public interface ListItemClickListener {
+
+    interface ListItemClickListener {
         void onListItemClick(String youtubeKey);
     }
 
-    public TrailerAdapter(int numberOfItems, ListItemClickListener listener, String[] name, String[] key) {
+    TrailerAdapter(int numberOfItems, ListItemClickListener listener, String[] name, String[] key) {
         mNumberItems = numberOfItems;
         mOnClickListener = listener;
         viewHolderCount = 0;
@@ -44,12 +41,8 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
 
         View view = inflater.inflate(layoutIdForListItem, viewGroup, shouldAttachToParentImmediately);
         TrailerViewHolder viewHolder = new TrailerViewHolder(view);
-
-        //viewHolder.viewHolderIndex.setText("ViewHolder index: " + viewHolderCount);
-
         viewHolderCount++;
-        Log.d(TAG, "onCreateViewHolder: number of ViewHolders created: "
-                + viewHolderCount);
+
         return viewHolder;
     }
 
@@ -87,7 +80,6 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
     class TrailerViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
-        // Will display the position in the list, ie 0 through getItemCount() - 1
         TextView listTrailerName;
         ImageView ivTrailerIcon;
 
@@ -104,7 +96,6 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
             ivTrailerIcon = (ImageView) itemView.findViewById(R.id.iv_trailer);
             listTrailerName = (TextView) itemView.findViewById(R.id.tv_trailer_name);
 
-            // COMPLETED (7) Call setOnClickListener on the View passed into the constructor (use 'this' as the OnClickListener)
             itemView.setOnClickListener(this);
         }
 
@@ -117,7 +108,6 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
             listTrailerName.setText(mName[listIndex]);
         }
 
-        // COMPLETED (6) Override onClick, passing the clicked item's position (getAdapterPosition()) to mOnClickListener via its onListItemClick method
         /**
          * Called whenever a user clicks on an item in the list.
          * @param v The View that was clicked

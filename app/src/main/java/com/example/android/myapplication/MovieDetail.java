@@ -11,11 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -43,11 +40,10 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
     CheckBox mMovieFavourite;
     SavedFavouriteContract.SavedFavouriteDbHelper mSavedFavouriteDbHelper;
     SQLiteDatabase mDatabase;
-    private static final int NUM_REVIEW_ITEMS = 10;
-    private ReviewAdapter mReviewAdapter;
-    private RecyclerView mReviewList;
-    private TrailerAdapter mTrailerAdapter;
-    private RecyclerView mTrailerList;
+    ReviewAdapter mReviewAdapter;
+    RecyclerView mReviewList;
+    TrailerAdapter mTrailerAdapter;
+    RecyclerView mTrailerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +52,8 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
 
         Intent intent = getIntent();
         mMovieId = intent.getStringExtra(EXTRA_MESSAGE);
-        String data = intent.getStringExtra("DATA");
-        boolean fav = intent.getBooleanExtra("FAV", false);
+        String data = intent.getStringExtra(getString(R.string.extra_data));
+        boolean fav = intent.getBooleanExtra(getString(R.string.extra_fav), false);
 
         mMovieTitle = (TextView) findViewById(R.id.tv_detail_movie_title);
         mMoviePoster = (ImageView) findViewById(R.id.iv_detail_movie_poster);
@@ -113,18 +109,18 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
         String[] movieDetails = {"", "", "", "", ""};
 
         String[] select_col = {
-                SavedFavouriteContract.FeedEntry._ID,
-                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_TITLE,
-                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_POSTER,
-                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_OVERVIEW,
-                //SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RATING,
-                SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RELEASE
+                SavedFavouriteContract.FavEntry._ID,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_TITLE,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_POSTER,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_OVERVIEW,
+                //SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RATING,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RELEASE
         };
-        String where_col = SavedFavouriteContract.FeedEntry._ID + "=?";
+        String where_col = SavedFavouriteContract.FavEntry._ID + "=?";
         String[] where_val = {_id};
 
         Cursor c = mDatabase.query(
-                SavedFavouriteContract.FeedEntry.TABLE_NAME,    // The table to query
+                SavedFavouriteContract.FavEntry.TABLE_NAME,    // The table to query
                 select_col,                                     // The columns to return
                 where_col,                                      // The columns for the WHERE clause
                 where_val,                                      // The values for the WHERE clause
@@ -216,41 +212,30 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
 
     private void addMovieFavourite(String _id, String[] details) {
         ContentValues values = new ContentValues();
-        values.put(SavedFavouriteContract.FeedEntry._ID, _id);
-        values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_TITLE, details[0]);
-        values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_POSTER, details[1]);
-        values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_OVERVIEW, details[2]);
-        //values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RATING, details[3]);
-        values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RELEASE, details[4]);
+        values.put(SavedFavouriteContract.FavEntry._ID, _id);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_TITLE, details[0]);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_POSTER, details[1]);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_OVERVIEW, details[2]);
+        //values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RATING, details[3]);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RELEASE, details[4]);
 
-        getContentResolver().insert(SavedFavouriteContract.TaskEntry.CONTENT_URI, values);
+        getContentResolver().insert(SavedFavouriteContract.MovieEntry.CONTENT_URI, values);
     }
 
     private void delMovieFavourite(String _id) {
-        String selection = SavedFavouriteContract.FeedEntry._ID + " LIKE ?";  // WHERE col_name LIKE ?
+        String selection = SavedFavouriteContract.FavEntry._ID + " LIKE ?";  // WHERE col_name LIKE ?
         String[] selectionArgs = new String[]{ String.valueOf(_id) };
-
-        /*
-        long dbResult =  mDatabase.delete(
-                SavedFavouriteContract.FeedEntry.TABLE_NAME,
-                selection,
-                selectionArgs
-        );
-        */
-        getContentResolver().delete(SavedFavouriteContract.TaskEntry.CONTENT_URI, selection, selectionArgs);
-
-        //mDatabase.close();
-        //return dbResult;
+        getContentResolver().delete(SavedFavouriteContract.MovieEntry.CONTENT_URI, selection, selectionArgs);
     }
 
     private boolean checkMovieFavourite(String _id) {
 
-        String[] projection = {SavedFavouriteContract.FeedEntry._ID};
-        String selection = SavedFavouriteContract.FeedEntry._ID + "=?";
+        String[] projection = {SavedFavouriteContract.FavEntry._ID};
+        String selection = SavedFavouriteContract.FavEntry._ID + "=?";
         String[] selectionArgs = {_id};
 
                 Cursor c = getContentResolver().query(
-                        SavedFavouriteContract.TaskEntry.CONTENT_URI,
+                        SavedFavouriteContract.MovieEntry.CONTENT_URI,
                         projection,
                         selection,
                         selectionArgs,
@@ -286,7 +271,7 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
             String[] authors = {"", "", ""};
             String[] reviews = {"", "", ""};
 
-            // key/name for video id/title
+            // author/content for review author/body
             try {
                 JSONObject reader = new JSONObject(response);
                 JSONArray all_reviews = reader.getJSONArray("results");
@@ -345,7 +330,6 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
 
     @Override
     public void onListItemClick(String youtubeKey) {
-        Toast.makeText(MovieDetail.this, "Key #" + youtubeKey, Toast.LENGTH_SHORT).show();
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + youtubeKey)));
     }
 
