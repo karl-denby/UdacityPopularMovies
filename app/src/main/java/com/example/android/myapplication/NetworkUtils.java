@@ -39,13 +39,13 @@ import java.util.Scanner;
  *              .. show stored data on details (DONE)
  *
  * Done: (4) ..view and play trailers (via youtube or browser [Intent]) /movie/{id}/videos
- * Todo: (E) ....user can share the 1st trailers url
+ * Skip: (E) ....user can share the 1st trailers url
  *           trailer url: https://api.themoviedb.org/3/movie/328111/videos?api_key=
  *
  * Done: (5) ..read reviews of a selected movie /movie/{id}/reviews
  *           review url: https://api.themoviedb.org/3/movie/328111/reviews?api_key=
  *
- * Todo: (6) ..titles and ids stored in a ContentProvider with SQL database, updated when toggled
+ * Done: (6) ..titles and ids stored in a ContentProvider with SQL database, updated when toggled
  * Done: (E) ....store the other fields in the content provider for offline access
  */
 

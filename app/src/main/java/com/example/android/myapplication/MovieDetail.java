@@ -214,7 +214,7 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
                 .into(mMoviePoster);
     }
 
-    private long addMovieFavourite(String _id, String[] details) {
+    private void addMovieFavourite(String _id, String[] details) {
         ContentValues values = new ContentValues();
         values.put(SavedFavouriteContract.FeedEntry._ID, _id);
         values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_TITLE, details[0]);
@@ -223,47 +223,39 @@ public class MovieDetail extends AppCompatActivity implements TrailerAdapter.Lis
         //values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RATING, details[3]);
         values.put(SavedFavouriteContract.FeedEntry.COLUMN_NAME_MOVIE_RELEASE, details[4]);
 
-        /* Via SQL
-        long dbResult = mDatabase.insert(
-                SavedFavouriteContract.FeedEntry.TABLE_NAME,
-                SavedFavouriteContract.FeedEntry.COLUMN_NAME_NULLABLE,
-                values
-        );
-        mDatabase.close();
-        */
-        Uri uri = getContentResolver().insert(SavedFavouriteContract.TaskEntry.CONTENT_URI, values);
-
-        return 0;
+        getContentResolver().insert(SavedFavouriteContract.TaskEntry.CONTENT_URI, values);
     }
 
-    private long delMovieFavourite(String _id) {
+    private void delMovieFavourite(String _id) {
         String selection = SavedFavouriteContract.FeedEntry._ID + " LIKE ?";  // WHERE col_name LIKE ?
         String[] selectionArgs = new String[]{ String.valueOf(_id) };
 
+        /*
         long dbResult =  mDatabase.delete(
                 SavedFavouriteContract.FeedEntry.TABLE_NAME,
                 selection,
                 selectionArgs
         );
-        mDatabase.close();
-        return dbResult;
+        */
+        getContentResolver().delete(SavedFavouriteContract.TaskEntry.CONTENT_URI, selection, selectionArgs);
+
+        //mDatabase.close();
+        //return dbResult;
     }
 
     private boolean checkMovieFavourite(String _id) {
 
-        String[] select_col = {SavedFavouriteContract.FeedEntry._ID};
-        String where_col = SavedFavouriteContract.FeedEntry._ID + "=?";
-        String[] where_val = {_id};
+        String[] projection = {SavedFavouriteContract.FeedEntry._ID};
+        String selection = SavedFavouriteContract.FeedEntry._ID + "=?";
+        String[] selectionArgs = {_id};
 
-        Cursor c = mDatabase.query(
-                SavedFavouriteContract.FeedEntry.TABLE_NAME,    // The table to query
-                select_col,                                     // The columns to return
-                where_col,                                      // The columns for the WHERE clause
-                where_val,                                      // The values for the WHERE clause
-                null,                                           // don't group the rows
-                null,                                           // don't filter by row groups
-                null                                            // The sort order
-        );
+                Cursor c = getContentResolver().query(
+                        SavedFavouriteContract.TaskEntry.CONTENT_URI,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
 
         if (c.getCount() > 0) {
             c.close();

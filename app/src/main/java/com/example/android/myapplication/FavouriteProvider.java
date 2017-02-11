@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 
 public class FavouriteProvider extends ContentProvider {
@@ -51,8 +52,7 @@ public class FavouriteProvider extends ContentProvider {
     // Create
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
-        //final SQLiteDatabase db = .getWritableDatabase();
-        //int match = builtUriMatcher(uri, values);
+
         final SQLiteDatabase db = mSavedFavouriteDbHelper.getWritableDatabase();
         int match = sUriMatcher.match(uri);
         Uri returnUri;
@@ -60,12 +60,16 @@ public class FavouriteProvider extends ContentProvider {
         switch (match) {
             case (FAVOURITES):
                 long id = db.insert(SavedFavouriteContract.FeedEntry.TABLE_NAME, null, values);
+                db.close();
+
                 if (id > 0) {
                     returnUri = ContentUris.withAppendedId(SavedFavouriteContract.BASE_CONTENT_URI, id);
                 } else {
                     throw new UnsupportedOperationException("Failed to insert row: " + uri.toString());
                 }
+
                 break;
+
             default:
                 throw new UnsupportedOperationException("Unknown URI");
         }
@@ -76,8 +80,29 @@ public class FavouriteProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
-        // TODO: Implement this to handle query requests from clients.
-        throw new UnsupportedOperationException("Not yet implemented");
+
+        final SQLiteDatabase db = mSavedFavouriteDbHelper.getReadableDatabase();
+        int match = sUriMatcher.match(uri);
+        Cursor returnCursor;
+
+        switch (match) {
+            case (FAVOURITES):
+                returnCursor = db.query(
+                        SavedFavouriteContract.FeedEntry.TABLE_NAME,    // The table to query
+                        projection,                                     // The columns to return
+                        selection,                                      // The columns for the WHERE clause
+                        selectionArgs,                                  // The values for the WHERE clause
+                        null,                                           // don't group the rows
+                        null,                                           // don't filter by row groups
+                        sortOrder                                       // The sort order
+                );
+                db.close();
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Not yet implemented");
+        }
+        return returnCursor;
     }
 
     // Update
@@ -91,8 +116,23 @@ public class FavouriteProvider extends ContentProvider {
     // Delete
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+
+        final SQLiteDatabase db = mSavedFavouriteDbHelper.getWritableDatabase();
+        int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case (FAVOURITES):
+                long deletedRowCount = db.delete(SavedFavouriteContract.FeedEntry.TABLE_NAME, selection, selectionArgs);
+                db.close();
+                if (deletedRowCount == 1) {
+                    return 0;
+                } else {
+                    throw new UnsupportedOperationException("Delete Error: " + uri.toString());
+                }
+            default:
+                throw new UnsupportedOperationException("Unknown URI");
+        }
+
     }
 
     // Other
