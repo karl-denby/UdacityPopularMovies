@@ -62,6 +62,7 @@ public class MovieGrid extends AppCompatActivity {
         }
 
         if (clickedItem == R.id.favourite) {
+            mSortType = getString(R.string.sort_fav);
             showFavourites();
         }
 
@@ -101,7 +102,7 @@ public class MovieGrid extends AppCompatActivity {
 
         mSortType = sharedPreferences.getString(getString(R.string.pref_sort_order), getString(R.string.sort_pop_desc));
 
-        if (mSortType.equals(getString(R.string.favourite))) {
+        if (mSortType.equals(getString(R.string.sort_fav))) {
             showGrid();
         } else {
             if (networkOnline()) {
@@ -134,22 +135,14 @@ public class MovieGrid extends AppCompatActivity {
 
         mSortType = sharedPreferences.getString(getString(R.string.pref_sort_order), getString(R.string.sort_pop_desc));
 
-        // Check for a valid network connection
-        // run query
-        // or error
-        if (savedInstanceState == null) {
-            // no saved info:
-            //  check network is up
-            //  set a sensible default, query for it, show it
-            //  or show that network is not up
+        // onResume will show if fav already, so
+        // not fav means check network, run query, show it
+        if (!mSortType.equals(getString(R.string.sort_fav))) {
             if (networkOnline()) {
                 queryAPI(mSortType);
             } else {
                 showNetworkError();
             }
-        } else {
-            // just display our populated widget
-            showGrid();
         }
     }
 
@@ -235,8 +228,6 @@ public class MovieGrid extends AppCompatActivity {
         QueryAsyncTask results = new QueryAsyncTask();
         results.execute(url);
     }
-
-
 
     private class QueryAsyncTask extends AsyncTask<URL, Void, String> {
         @Override
