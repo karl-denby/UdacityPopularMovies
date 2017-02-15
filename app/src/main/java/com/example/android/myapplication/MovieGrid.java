@@ -31,6 +31,7 @@ import static android.provider.AlarmClock.EXTRA_MESSAGE;
 public class MovieGrid extends AppCompatActivity {
 
     GridView mMovieGrid;
+    int mMovieGridPosition;
     ProgressBar mProgressBar;
     TextView mErrorText;
     String mResponseFromJSON;
@@ -80,6 +81,7 @@ public class MovieGrid extends AppCompatActivity {
         );
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(getString(R.string.pref_sort_order), mSortType);
+        editor.putInt(getString(R.string.grid_position), mMovieGrid.getFirstVisiblePosition());
         editor.apply();
     }
 
@@ -88,6 +90,18 @@ public class MovieGrid extends AppCompatActivity {
         super.onStop();
 
         showProgressIndicator();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        Log.v("INSIDE: ", "onSaveInstanceState");
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.v("INSIDE: ", "onRestoreInstanceState");
     }
 
     @Override
@@ -101,12 +115,13 @@ public class MovieGrid extends AppCompatActivity {
         );
 
         mSortType = sharedPreferences.getString(getString(R.string.pref_sort_order), getString(R.string.sort_pop_desc));
+        mMovieGridPosition = sharedPreferences.getInt(getString(R.string.grid_position), 0);
 
         if (mSortType.equals(getString(R.string.sort_fav))) {
             showFavourites();
         } else {
             if (networkOnline()) {
-                queryAPI(mSortType);
+                queryAPI(mSortType);;
                 showGrid();
             } else {
                 showNetworkError();
@@ -134,12 +149,14 @@ public class MovieGrid extends AppCompatActivity {
         );
 
         mSortType = sharedPreferences.getString(getString(R.string.pref_sort_order), getString(R.string.sort_pop_desc));
+        mMovieGridPosition = sharedPreferences.getInt(getString(R.string.grid_position), 0);
 
         // onResume will show if fav already, so
         // not fav means check network, run query, show it
         if (!mSortType.equals(getString(R.string.sort_fav))) {
             if (networkOnline()) {
                 queryAPI(mSortType);
+                showGrid();
             } else {
                 showNetworkError();
             }
@@ -186,6 +203,7 @@ public class MovieGrid extends AppCompatActivity {
 
     private void showGrid() {
         mMovieGrid.setVisibility(View.VISIBLE);
+        mMovieGrid.setSelection(mMovieGridPosition);
 
         mErrorText.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.INVISIBLE);
@@ -210,16 +228,18 @@ public class MovieGrid extends AppCompatActivity {
 
         ImageAdapter adapter = new ImageAdapter(MovieGrid.this, mMovieId, mPosterUrl);
         mMovieGrid.setAdapter(null);
-        mMovieGrid.setAdapter(adapter);
-        mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                showProgressIndicator();
-                Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
-                intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
-                intent.putExtra(getString(R.string.extra_fav), true);
-                startActivity(intent);
-            }
-        });
+        if (mMovieGrid.getAdapter() == null) {
+            mMovieGrid.setAdapter(adapter);
+            mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                    showProgressIndicator();
+                    Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
+                    intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
+                    intent.putExtra(getString(R.string.extra_fav), true);
+                    startActivity(intent);
+                }
+            });
+        }
         showGrid();
     }
 
@@ -250,16 +270,18 @@ public class MovieGrid extends AppCompatActivity {
 
             ImageAdapter adapter = new ImageAdapter(MovieGrid.this, mMovieId, mPosterUrl);
             mMovieGrid.setAdapter(null);
-            mMovieGrid.setAdapter(adapter);
-            mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    showProgressIndicator();
-                    Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
-                    intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
-                    intent.putExtra(getString(R.string.extra_data), mResponseFromJSON);
-                    startActivity(intent);
-                }
-            });
+            if (mMovieGrid.getAdapter() == null) {
+                mMovieGrid.setAdapter(adapter);
+                mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                        showProgressIndicator();
+                        Intent intent = new Intent(MovieGrid.this, MovieDetail.class);
+                        intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
+                        intent.putExtra(getString(R.string.extra_data), mResponseFromJSON);
+                        startActivity(intent);
+                    }
+                });
+            }
             showGrid();
         }
     }
