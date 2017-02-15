@@ -51,7 +51,7 @@ public class ImageAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        String base_url = "http://image.tmdb.org/t/p/w185";
+        String base_url = "http://image.tmdb.org/t/p/w500";
         if (mPosterUrl[position] != null) {
             Picasso
                     .with(mContext)

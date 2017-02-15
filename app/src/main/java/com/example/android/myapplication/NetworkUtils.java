@@ -32,8 +32,6 @@ import java.util.Scanner;
 class NetworkUtils {
 
     private final static String BASE_URL = "https://api.themoviedb.org/3/movie";
-    private final static String GRID_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
-    private final static String GRID_PARAM_SORT = "sort_by";
     private final static String PARAM_KEY = "api_key";
 
     // ToDo: () ..Enter your API key below..
@@ -46,10 +44,11 @@ class NetworkUtils {
      * @return The URL to use to query the server
      */
     static URL buildGridUrl(String searchQuery) {
-        Uri builtUri = Uri.parse(GRID_BASE_URL).buildUpon()
-                .appendQueryParameter(GRID_PARAM_SORT, searchQuery)
+        Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .appendPath(searchQuery)
                 .appendQueryParameter(PARAM_KEY, myKey)
                 .build();
+        Log.v("Built URL", builtUri.toString());
 
         URL url = null;
         try {

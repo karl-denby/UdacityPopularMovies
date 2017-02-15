@@ -6,8 +6,8 @@
     <string name="favourite">Favourites</string>
     <string name="extra_data">DATA</string>
     <string name="extra_fav">FAV</string>
-    <string name="sort_pop_desc">popularity.desc</string>
-    <string name="sort_avg_desc"><![CDATA[vote_average.desc&vote_count.gte=50]]></string>
+    <string name="sort_pop_desc">popular</string>
+    <string name="sort_avg_desc">top_rated</string>
     <string name="sort_fav">favourite</string>
     <string name="pref_sort_order">sort_order</string>
     <string name="error_http_response">"http response error: "</string>
