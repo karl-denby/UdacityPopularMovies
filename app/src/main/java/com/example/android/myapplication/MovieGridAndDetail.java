@@ -1,21 +1,22 @@
 package com.example.android.myapplication;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -31,8 +32,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
-
-import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class MovieGridAndDetail extends AppCompatActivity {
 
@@ -53,6 +52,11 @@ public class MovieGridAndDetail extends AppCompatActivity {
     RatingBar mMovieProgress;
     TextView mMovieReleaseDate;
     CheckBox mMovieFavourite;
+
+
+
+    String mMovieDetails[] = {"", "", "", "", "", ""};
+    String mSelectedMovieId = "";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -161,6 +165,21 @@ public class MovieGridAndDetail extends AppCompatActivity {
         mMovieProgress = (RatingBar) findViewById(R.id.rb_detail_movie_vote_average);
         mMovieReleaseDate = (TextView) findViewById(R.id.tv_detail_movie_release_date);
         mMovieFavourite = (CheckBox) findViewById(R.id.cb_is_favourite_movie);
+
+        mMovieFavourite.setChecked(checkMovieFavourite(mSelectedMovieId));
+        mMovieFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Toast toast;
+                long rowCount;
+                if (isChecked) {
+                    addMovieFavourite(mSelectedMovieId, mMovieDetails);
+                } else {
+                    delMovieFavourite(mSelectedMovieId);
+                }
+            }
+        });
+
 
         Context context = this.getBaseContext();
         SharedPreferences sharedPreferences = context.getSharedPreferences(
@@ -295,43 +314,59 @@ public class MovieGridAndDetail extends AppCompatActivity {
                 mMovieGrid.setAdapter(adapter);
                 mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                String movieDetails[] = {"", "", "", "", "", ""};
-                try {
-                    JSONObject reader = new JSONObject(mResponseFromJSON);
-                    JSONArray all_movies = reader.getJSONArray("results");
-                    JSONObject thisMovie;
+                        try {
+                            JSONObject reader = new JSONObject(mResponseFromJSON);
+                            JSONArray all_movies = reader.getJSONArray("results");
+                            JSONObject thisMovie;
 
-                    for (int i = 0; i < all_movies.length(); i++) {
-                        thisMovie = all_movies.getJSONObject(i);
-                        if (thisMovie.getString("id").equals(mMovieId[position])) {
+                            for (int i = 0; i < all_movies.length(); i++) {
+                                thisMovie = all_movies.getJSONObject(i);
+                                if (thisMovie.getString("id").equals(mMovieId[position])) {
 
-                            String title = thisMovie.getString("title");
-                            mMovieTitle.setText(title);
+                                    String title = thisMovie.getString("title");
+                                    mMovieTitle.setText(title);
 
-                            String poster = thisMovie.getString("poster_path");
-                            setPoster(poster);
+                                    String poster = thisMovie.getString("poster_path");
+                                    setPoster(poster);
 
-                            String overview = thisMovie.getString("overview");
-                            mMovieOverview.setText(overview);
+                                    String overview = thisMovie.getString("overview");
+                                    mMovieOverview.setText(overview);
 
-                            float vote_average = thisMovie.getLong("vote_average");
-                            mMovieProgress.setRating(vote_average / 2);
+                                    float vote_average = thisMovie.getLong("vote_average");
+                                    mMovieProgress.setRating(vote_average / 2);
 
-                            String release = thisMovie.getString("release_date");
-                            mMovieReleaseDate.setText(release);
+                                    String release = thisMovie.getString("release_date");
+                                    mMovieReleaseDate.setText(release);
 
-                            movieDetails[0] = title;
-                            movieDetails[1] = poster;
-                            movieDetails[2] = overview;
-                            movieDetails[3] = String.valueOf(vote_average);
-                            movieDetails[4] = release;
+                                    mSelectedMovieId = mMovieId[position];
+                                    mMovieDetails[0] = title;
+                                    mMovieDetails[1] = poster;
+                                    mMovieDetails[2] = overview;
+                                    mMovieDetails[3] = String.valueOf(vote_average);
+                                    mMovieDetails[4] = release;
 
-                            break;
+                                    mMovieFavourite.setOnCheckedChangeListener(null);
+                                    mMovieFavourite.setChecked(checkMovieFavourite(mMovieId[position]));
+                                    mMovieFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                        @Override
+                                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                            Toast toast;
+                                            long rowCount;
+                                            if (isChecked) {
+                                                addMovieFavourite(mSelectedMovieId, mMovieDetails);
+                                            } else {
+                                                delMovieFavourite(mSelectedMovieId);
+                                            }
+                                        }
+                                    });
+
+
+                                    break;
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
                     }
                 });
             }
@@ -363,5 +398,48 @@ public class MovieGridAndDetail extends AppCompatActivity {
                 .centerCrop()
                 .into(mMoviePoster);
     }
+
+    private void addMovieFavourite(String _id, String[] details) {
+        ContentValues values = new ContentValues();
+        values.put(SavedFavouriteContract.FavEntry._ID, _id);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_TITLE, details[0]);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_POSTER, details[1]);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_OVERVIEW, details[2]);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RATING, details[3]);
+        values.put(SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RELEASE, details[4]);
+
+        getContentResolver().insert(SavedFavouriteContract.MovieEntry.CONTENT_URI, values);
+    }
+
+    private void delMovieFavourite(String _id) {
+        String selection = SavedFavouriteContract.FavEntry._ID + " LIKE ?";  // WHERE col_name LIKE ?
+        String[] selectionArgs = new String[]{ String.valueOf(_id) };
+        getContentResolver().delete(SavedFavouriteContract.MovieEntry.CONTENT_URI, selection, selectionArgs);
+    }
+
+    private boolean checkMovieFavourite(String _id) {
+
+        String[] projection = {SavedFavouriteContract.FavEntry._ID};
+        String selection = SavedFavouriteContract.FavEntry._ID + "=?";
+        String[] selectionArgs = {_id};
+
+        Cursor fav = getContentResolver().query(
+                SavedFavouriteContract.MovieEntry.CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
+        );
+
+        if (fav.getCount() > 0) {
+            fav.close();
+            return true;
+        } else {
+            fav.close();
+            return false;
+        }
+
+    }
+
 
 }
