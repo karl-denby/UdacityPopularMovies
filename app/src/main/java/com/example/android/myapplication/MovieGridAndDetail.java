@@ -15,9 +15,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +46,13 @@ public class MovieGridAndDetail extends AppCompatActivity {
     String mSortType;
     SavedFavouriteContract.SavedFavouriteDbHelper mSavedFavouriteDbHelper;
     SQLiteDatabase mDatabase;
+
+    TextView mMovieTitle;
+    ImageView mMoviePoster;
+    TextView mMovieOverview;
+    RatingBar mMovieProgress;
+    TextView mMovieReleaseDate;
+    CheckBox mMovieFavourite;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -142,6 +155,13 @@ public class MovieGridAndDetail extends AppCompatActivity {
         mMovieGrid = (GridView) findViewById(R.id.gv_grid_posters);
         mErrorText = (TextView) findViewById(R.id.tv_grid_error);
 
+        mMovieTitle = (TextView) findViewById(R.id.tv_detail_movie_title);
+        mMoviePoster = (ImageView) findViewById(R.id.iv_detail_movie_poster);
+        mMovieOverview = (TextView) findViewById(R.id.tv_detail_movie_overview);
+        mMovieProgress = (RatingBar) findViewById(R.id.rb_detail_movie_vote_average);
+        mMovieReleaseDate = (TextView) findViewById(R.id.tv_detail_movie_release_date);
+        mMovieFavourite = (CheckBox) findViewById(R.id.cb_is_favourite_movie);
+
         Context context = this.getBaseContext();
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 getString(R.string.app_name),
@@ -232,11 +252,12 @@ public class MovieGridAndDetail extends AppCompatActivity {
             mMovieGrid.setAdapter(adapter);
             mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    showProgressIndicator();
-                    Intent intent = new Intent(MovieGridAndDetail.this, MovieDetail.class);
-                    intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
-                    intent.putExtra(getString(R.string.extra_fav), true);
-                    startActivity(intent);
+                    //showProgressIndicator();
+                    //Intent intent = new Intent(MovieGridAndDetail.this, MovieDetail.class);
+                    //intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
+                    //intent.putExtra(getString(R.string.extra_fav), true);
+                    //startActivity(intent);
+                    Toast.makeText(MovieGridAndDetail.this, "Item: " + position, Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -274,11 +295,43 @@ public class MovieGridAndDetail extends AppCompatActivity {
                 mMovieGrid.setAdapter(adapter);
                 mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                        showProgressIndicator();
-                        Intent intent = new Intent(MovieGridAndDetail.this, MovieDetail.class);
-                        intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
-                        intent.putExtra(getString(R.string.extra_data), mResponseFromJSON);
-                        startActivity(intent);
+                String movieDetails[] = {"", "", "", "", "", ""};
+                try {
+                    JSONObject reader = new JSONObject(mResponseFromJSON);
+                    JSONArray all_movies = reader.getJSONArray("results");
+                    JSONObject thisMovie;
+
+                    for (int i = 0; i < all_movies.length(); i++) {
+                        thisMovie = all_movies.getJSONObject(i);
+                        if (thisMovie.getString("id").equals(mMovieId[position])) {
+
+                            String title = thisMovie.getString("title");
+                            mMovieTitle.setText(title);
+
+                            String poster = thisMovie.getString("poster_path");
+                            setPoster(poster);
+
+                            String overview = thisMovie.getString("overview");
+                            mMovieOverview.setText(overview);
+
+                            float vote_average = thisMovie.getLong("vote_average");
+                            mMovieProgress.setRating(vote_average / 2);
+
+                            String release = thisMovie.getString("release_date");
+                            mMovieReleaseDate.setText(release);
+
+                            movieDetails[0] = title;
+                            movieDetails[1] = poster;
+                            movieDetails[2] = overview;
+                            movieDetails[3] = String.valueOf(vote_average);
+                            movieDetails[4] = release;
+
+                            break;
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                     }
                 });
             }
@@ -300,5 +353,15 @@ public class MovieGridAndDetail extends AppCompatActivity {
         }
     }
 
+    private void setPoster(String poster_path) {
+        String base_url = "http://image.tmdb.org/t/p/w185";
+
+        Picasso
+                .with(this)
+                .load(base_url + poster_path)
+                .fit()
+                .centerCrop()
+                .into(mMoviePoster);
+    }
 
 }

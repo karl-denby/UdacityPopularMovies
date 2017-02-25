@@ -35,7 +35,7 @@ class NetworkUtils {
     private final static String PARAM_KEY = "api_key";
 
     // ToDo: () ..Enter your API key below..
-    private final static String myKey = "YOUR_KEY_GOES_HERE";
+    private final static String myKey = "YOUR_API_KEY_HERE";
 
     /**
      * Builds the URL used to query the movie db .com for our list of movies
