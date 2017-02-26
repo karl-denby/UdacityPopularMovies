@@ -12,4 +12,6 @@
     <string name="pref_sort_order">sort_order</string>
     <string name="error_http_response">"http response error: "</string>
     <string name="grid_position">grid_position</string>
+    <string name="selected_movie_id">selected_movie_id</string>
+    <string name="selected_movie_details">selected_movie_details</string>
 </resources>

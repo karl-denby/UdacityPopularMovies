@@ -2,14 +2,18 @@ package com.example.android.myapplication;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,8 +36,12 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-public class MovieGridAndDetail extends AppCompatActivity {
+public class MovieGridAndDetail extends AppCompatActivity implements TrailerAdapter.ListItemClickListener {
 
     GridView mMovieGrid;
     int mMovieGridPosition;
@@ -53,10 +61,14 @@ public class MovieGridAndDetail extends AppCompatActivity {
     TextView mMovieReleaseDate;
     CheckBox mMovieFavourite;
 
-
-
     String mMovieDetails[] = {"", "", "", "", "", ""};
     String mSelectedMovieId = "";
+
+    ReviewAdapter mReviewAdapter;
+    RecyclerView mReviewList;
+    TrailerAdapter mTrailerAdapter;
+    RecyclerView mTrailerList;
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -99,6 +111,12 @@ public class MovieGridAndDetail extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(getString(R.string.pref_sort_order), mSortType);
         editor.putInt(getString(R.string.grid_position), mMovieGrid.getFirstVisiblePosition());
+        editor.putString(getString(R.string.selected_movie_id), mSelectedMovieId);
+        editor.putString("movie_details_0", mMovieDetails[0]);
+        editor.putString("movie_details_1", mMovieDetails[1]);
+        editor.putString("movie_details_2", mMovieDetails[2]);
+        editor.putString("movie_details_3", mMovieDetails[3]);
+        editor.putString("movie_details_4", mMovieDetails[4]);
         editor.apply();
     }
 
@@ -134,12 +152,22 @@ public class MovieGridAndDetail extends AppCompatActivity {
         mSortType = sharedPreferences.getString(getString(R.string.pref_sort_order), getString(R.string.sort_pop_desc));
         mMovieGridPosition = sharedPreferences.getInt(getString(R.string.grid_position), 0);
 
+        mSelectedMovieId = sharedPreferences.getString(getString(R.string.selected_movie_id), "");
+        mMovieDetails[0] = sharedPreferences.getString("movie_details_0", "");
+        mMovieDetails[1] = sharedPreferences.getString("movie_details_1", "");
+        mMovieDetails[2] = sharedPreferences.getString("movie_details_2", "");
+        mMovieDetails[3] = sharedPreferences.getString("movie_details_3", "");
+        mMovieDetails[4] = sharedPreferences.getString("movie_details_4", "");
+
         if (mSortType.equals(getString(R.string.sort_fav))) {
             showFavourites();
         } else {
             showGrid();
         }
 
+        if (!mSelectedMovieId.equals("") && !mMovieDetails[0].equals("")) {
+            showSelectedMovie();
+        }
     }
 
     @Override
@@ -161,20 +189,15 @@ public class MovieGridAndDetail extends AppCompatActivity {
         mMovieReleaseDate = (TextView) findViewById(R.id.tv_detail_movie_release_date);
         mMovieFavourite = (CheckBox) findViewById(R.id.cb_is_favourite_movie);
 
-        mMovieFavourite.setChecked(checkMovieFavourite(mSelectedMovieId));
-        mMovieFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Toast toast;
-                long rowCount;
-                if (isChecked) {
-                    addMovieFavourite(mSelectedMovieId, mMovieDetails);
-                } else {
-                    delMovieFavourite(mSelectedMovieId);
-                }
-            }
-        });
+        mReviewList = (RecyclerView) findViewById(R.id.rv_reviews);
+        LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
+        mReviewList.setLayoutManager(reviewLayoutManager);
+        mReviewList.setHasFixedSize(true);
 
+        mTrailerList = (RecyclerView) findViewById(R.id.rv_trailers);
+        LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(this);
+        mTrailerList.setLayoutManager(trailerLayoutManager);
+        mTrailerList.setHasFixedSize(true);
 
         Context context = this.getBaseContext();
         SharedPreferences sharedPreferences = context.getSharedPreferences(
@@ -195,6 +218,31 @@ public class MovieGridAndDetail extends AppCompatActivity {
                 showNetworkError();
             }
         }
+
+        Log.v("THIS", "Movie is " + mSelectedMovieId);
+        if (!mSelectedMovieId.equals("")) {
+            Log.v("THIS", "Restore code begins");
+            mMovieTitle.setText(mMovieDetails[0]);
+
+            setPoster(mMovieDetails[1]);
+            mMovieOverview.setText(mMovieDetails[2]);
+            mMovieProgress.setRating(Float.valueOf(mMovieDetails[3]) / 2);
+            mMovieReleaseDate.setText(mMovieDetails[4]);
+
+            mMovieFavourite.setOnCheckedChangeListener(null);
+            mMovieFavourite.setChecked(checkMovieFavourite(mSelectedMovieId));
+            mMovieFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        addMovieFavourite(mSelectedMovieId, mMovieDetails);
+                    } else {
+                        delMovieFavourite(mSelectedMovieId);
+                    }
+                }
+            });
+        }
+
     }
 
     private void createFavouritesList() {
@@ -255,6 +303,51 @@ public class MovieGridAndDetail extends AppCompatActivity {
         mErrorText.setVisibility(View.INVISIBLE);
     }
 
+    private void setFavouriteDetails(String _id) {
+        String[] projection = {
+                SavedFavouriteContract.FavEntry._ID,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_TITLE,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_POSTER,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_OVERVIEW,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RATING,
+                SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_RELEASE
+        };
+        String selection = SavedFavouriteContract.FavEntry._ID + "=?";
+        String[] selectionArgs = {_id};
+
+        Cursor c = getContentResolver().query(
+                SavedFavouriteContract.MovieEntry.CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
+        );
+
+        if (c != null) {
+            mSelectedMovieId = _id;
+            c.moveToFirst();
+            String title = c.getString(c.getColumnIndexOrThrow("title"));
+            mMovieDetails[0] = title;
+            String poster = c.getString(c.getColumnIndexOrThrow("poster"));
+            mMovieDetails[1] = poster;
+            String overview = c.getString(c.getColumnIndexOrThrow("overview"));
+            mMovieDetails[2] = overview;
+            String rating = c.getString(c.getColumnIndexOrThrow("rating"));
+            mMovieDetails[3] = rating;
+            String release = c.getString(c.getColumnIndexOrThrow("release"));
+            mMovieDetails[4] = release;
+            c.close();
+        }
+
+        URL url = NetworkUtils.buildReviewUrl(mSelectedMovieId);
+        MovieGridAndDetail.ReviewAsyncTask reviewResults = new MovieGridAndDetail.ReviewAsyncTask();
+        reviewResults.execute(url);
+
+        url = NetworkUtils.buildTrailerUrl(mSelectedMovieId);
+        MovieGridAndDetail.MovieAsyncTask movieResults = new MovieGridAndDetail.MovieAsyncTask();
+        movieResults.execute(url);
+    }
+
     private void showFavourites() {
         createFavouritesList();
 
@@ -264,12 +357,8 @@ public class MovieGridAndDetail extends AppCompatActivity {
             mMovieGrid.setAdapter(adapter);
             mMovieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    //showProgressIndicator();
-                    //Intent intent = new Intent(MovieGridAndDetail.this, MovieDetail.class);
-                    //intent.putExtra(EXTRA_MESSAGE, mMovieId[position]);
-                    //intent.putExtra(getString(R.string.extra_fav), true);
-                    //startActivity(intent);
-                    Toast.makeText(MovieGridAndDetail.this, "Item: " + position, Toast.LENGTH_SHORT).show();
+                    setFavouriteDetails(mMovieId[position]);
+                    showSelectedMovie();
                 }
             });
         }
@@ -317,19 +406,10 @@ public class MovieGridAndDetail extends AppCompatActivity {
                                 if (thisMovie.getString("id").equals(mMovieId[position])) {
 
                                     String title = thisMovie.getString("title");
-                                    mMovieTitle.setText(title);
-
                                     String poster = thisMovie.getString("poster_path");
-                                    setPoster(poster);
-
                                     String overview = thisMovie.getString("overview");
-                                    mMovieOverview.setText(overview);
-
                                     float vote_average = thisMovie.getLong("vote_average");
-                                    mMovieProgress.setRating(vote_average / 2);
-
                                     String release = thisMovie.getString("release_date");
-                                    mMovieReleaseDate.setText(release);
 
                                     mSelectedMovieId = mMovieId[position];
                                     mMovieDetails[0] = title;
@@ -338,21 +418,7 @@ public class MovieGridAndDetail extends AppCompatActivity {
                                     mMovieDetails[3] = String.valueOf(vote_average);
                                     mMovieDetails[4] = release;
 
-                                    mMovieFavourite.setOnCheckedChangeListener(null);
-                                    mMovieFavourite.setChecked(checkMovieFavourite(mMovieId[position]));
-                                    mMovieFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                                        @Override
-                                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                            Toast toast;
-                                            long rowCount;
-                                            if (isChecked) {
-                                                addMovieFavourite(mSelectedMovieId, mMovieDetails);
-                                            } else {
-                                                delMovieFavourite(mSelectedMovieId);
-                                            }
-                                        }
-                                    });
-
+                                    showSelectedMovie();
 
                                     break;
                                 }
@@ -365,6 +431,35 @@ public class MovieGridAndDetail extends AppCompatActivity {
             }
             showGrid();
         }
+    }
+
+    private void showSelectedMovie() {
+
+        mMovieTitle.setText(mMovieDetails[0]);
+        setPoster(mMovieDetails[1]);
+        mMovieOverview.setText(mMovieDetails[2]);
+        mMovieProgress.setRating(Float.valueOf(mMovieDetails[3]) / 2);
+        mMovieReleaseDate.setText(mMovieDetails[4]);
+        mMovieFavourite.setOnCheckedChangeListener(null);
+        mMovieFavourite.setChecked(checkMovieFavourite(mSelectedMovieId));
+        mMovieFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    addMovieFavourite(mSelectedMovieId, mMovieDetails);
+                } else {
+                    delMovieFavourite(mSelectedMovieId);
+                }
+            }
+        });
+
+        URL url = NetworkUtils.buildReviewUrl(mSelectedMovieId);
+        MovieGridAndDetail.ReviewAsyncTask reviewResults = new MovieGridAndDetail.ReviewAsyncTask();
+        reviewResults.execute(url);
+
+        url = NetworkUtils.buildTrailerUrl(mSelectedMovieId);
+        MovieGridAndDetail.MovieAsyncTask movieResults = new MovieGridAndDetail.MovieAsyncTask();
+        movieResults.execute(url);
     }
 
     private void createMovieList(String data) {
@@ -434,5 +529,85 @@ public class MovieGridAndDetail extends AppCompatActivity {
 
     }
 
+    private class ReviewAsyncTask extends AsyncTask<URL, Void, String> {
+        @Override
+        protected String doInBackground(URL... url) {
+
+            String response = "";
+            try {
+                response =  NetworkUtils.getResponseFromHttpUrl(url[0]);
+            } catch (IOException e) {
+                Log.v("queryAPI", e.toString());
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(final String response) {
+            super.onPostExecute(response);
+
+            String[] authors = {"", "", ""};
+            String[] reviews = {"", "", ""};
+
+            // author/content for review author/body
+            try {
+                JSONObject reader = new JSONObject(response);
+                JSONArray all_reviews = reader.getJSONArray("results");
+                for (int i = 0; i < 3; i++) {
+                    JSONObject review = all_reviews.getJSONObject(i);
+                    authors[i] = review.getString("author");
+                    reviews[i] = review.getString("content");
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            mReviewAdapter = new ReviewAdapter(authors.length, authors, reviews);
+            mReviewList.setAdapter(mReviewAdapter);
+        }
+    }
+
+    private class MovieAsyncTask extends AsyncTask<URL, Void, String> {
+        @Override
+        protected String doInBackground(URL... url) {
+
+            String response = "";
+            try {
+                response =  NetworkUtils.getResponseFromHttpUrl(url[0]);
+            } catch (IOException e) {
+                Log.v("queryAPI", e.toString());
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(final String response) {
+            super.onPostExecute(response);
+
+            String[] vid_id = {"", "", ""};
+            String[] vid_name = {"", "", ""};
+
+            // key/name for video id/title
+            try {
+                JSONObject reader = new JSONObject(response);
+                JSONArray all_reviews = reader.getJSONArray("results");
+                for (int i = 0; i < 3; i++) {
+                    JSONObject review = all_reviews.getJSONObject(i);
+                    vid_id[i] = review.getString("key");
+                    vid_name[i] = review.getString("name");
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            mTrailerAdapter = new TrailerAdapter(vid_id.length, MovieGridAndDetail.this, vid_name, vid_id);
+            mTrailerList.setAdapter(mTrailerAdapter);
+        }
+    }
+
+    @Override
+    public void onListItemClick(String youtubeKey) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + youtubeKey)));
+    }
 
 }
