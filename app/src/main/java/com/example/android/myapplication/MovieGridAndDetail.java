@@ -137,12 +137,7 @@ public class MovieGridAndDetail extends AppCompatActivity {
         if (mSortType.equals(getString(R.string.sort_fav))) {
             showFavourites();
         } else {
-            if (networkOnline()) {
-                queryAPI(mSortType);;
-                showGrid();
-            } else {
-                showNetworkError();
-            }
+            showGrid();
         }
 
     }
@@ -203,17 +198,11 @@ public class MovieGridAndDetail extends AppCompatActivity {
     }
 
     private void createFavouritesList() {
-        // clear out the list
-        for (int i = 0; i < 10; i++) {
-            mMovieId[i] = null;
-            mPosterUrl[i] = null;
-        }
 
         String[] select_col = {
                 SavedFavouriteContract.FavEntry._ID,
                 SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_POSTER
         };
-
 
         Cursor c = mDatabase.query(
                 SavedFavouriteContract.FavEntry.TABLE_NAME,    // The table to query
@@ -224,6 +213,10 @@ public class MovieGridAndDetail extends AppCompatActivity {
                 null,                                           // don't filter by row groups
                 null                                            // The sort order
         );
+
+        // clear out the list
+        mMovieId = new String[c.getCount()];
+        mPosterUrl = new String[c.getCount()];
 
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
@@ -378,7 +371,7 @@ public class MovieGridAndDetail extends AppCompatActivity {
         try {
             JSONObject reader = new JSONObject(data);
             JSONArray all_movies = reader.getJSONArray("results");
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < all_movies.length(); i++) {
                 JSONObject movie = all_movies.getJSONObject(i);
                 mMovieId[i] = movie.getString("id");
                 mPosterUrl[i] = movie.getString("poster_path");

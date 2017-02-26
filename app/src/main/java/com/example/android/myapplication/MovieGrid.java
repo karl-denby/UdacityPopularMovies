@@ -35,8 +35,8 @@ public class MovieGrid extends AppCompatActivity {
     ProgressBar mProgressBar;
     TextView mErrorText;
     String mResponseFromJSON;
-    String[] mMovieId = new String[10];
-    String[] mPosterUrl = new String[10];
+    String[] mMovieId;
+    String[] mPosterUrl;
     String mSortType;
     SavedFavouriteContract.SavedFavouriteDbHelper mSavedFavouriteDbHelper;
     SQLiteDatabase mDatabase;
@@ -120,12 +120,7 @@ public class MovieGrid extends AppCompatActivity {
         if (mSortType.equals(getString(R.string.sort_fav))) {
             showFavourites();
         } else {
-            if (networkOnline()) {
-                queryAPI(mSortType);;
-                showGrid();
-            } else {
-                showNetworkError();
-            }
+            showGrid();
         }
 
     }
@@ -164,12 +159,6 @@ public class MovieGrid extends AppCompatActivity {
     }
 
     private void createFavouritesList() {
-        // clear out the list
-        for (int i = 0; i < 10; i++) {
-            mMovieId[i] = null;
-            mPosterUrl[i] = null;
-        }
-
         String[] select_col = {
                 SavedFavouriteContract.FavEntry._ID,
                 SavedFavouriteContract.FavEntry.COLUMN_NAME_MOVIE_POSTER
@@ -185,6 +174,10 @@ public class MovieGrid extends AppCompatActivity {
                 null,                                           // don't filter by row groups
                 null                                            // The sort order
         );
+
+        // clear out the list
+        mMovieId = new String[c.getCount()];
+        mPosterUrl = new String[c.getCount()];
 
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
@@ -290,7 +283,9 @@ public class MovieGrid extends AppCompatActivity {
         try {
             JSONObject reader = new JSONObject(data);
             JSONArray all_movies = reader.getJSONArray("results");
-            for (int i = 0; i < 10; i++) {
+            mMovieId = new String[all_movies.length()];
+            mPosterUrl = new String[all_movies.length()];
+            for (int i = 0; i < all_movies.length(); i++) {
                 JSONObject movie = all_movies.getJSONObject(i);
                 mMovieId[i] = movie.getString("id");
                 mPosterUrl[i] = movie.getString("poster_path");
